@@ -2,26 +2,27 @@
 <html lang="ta">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3, user-scalable=yes">
 <title>Mister Fitness - Gym Registration & Fees</title>
 <style>
-body { font-family: Arial, sans-serif; margin:0; padding:0; background: linear-gradient(135deg,#4facfe,#00f2fe);}
+body { font-family: Arial,sans-serif; margin:0; padding:0; background:linear-gradient(135deg,#4facfe,#00f2fe);}
 header { text-align:center; padding:15px; color:#fff; font-size:24px; font-weight:bold; }
-.container { max-width:600px; margin:20px auto; background:#fff; padding:25px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.2);}
-h2 { text-align:center; color:#333; margin-bottom:20px; }
-input, select, textarea, button { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:6px; }
+.container { max-width:600px; margin:15px auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 6px 15px rgba(0,0,0,0.2);}
+h2 { text-align:center; color:#333; margin-bottom:15px; font-size:20px;}
+input, select, textarea, button { width:100%; padding:8px; margin:5px 0; border:1px solid #ccc; border-radius:6px; font-size:14px;}
 button { background:#007bff; color:#fff; font-weight:bold; cursor:pointer; border:none; }
 button:hover { background:#0056b3; }
-.logout { background:#dc3545; margin-top:10px; }
+.logout { background:#dc3545; margin-top:8px;}
 .hidden { display:none; }
-table { width:100%; border-collapse:collapse; margin-top:15px; }
-th, td { border:1px solid #ccc; padding:8px; text-align:center; font-size:14px; }
+table { width:100%; border-collapse:collapse; margin-top:10px; font-size:12px; }
+th, td { border:1px solid #ccc; padding:6px; text-align:center; }
 th { background:#007bff; color:#fff; }
-.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
-.modal-content { background:#fff; padding:20px; border-radius:10px; width:95%; max-width:600px; position:relative; overflow-x:auto; }
-.close-btn { position:absolute; top:10px; right:15px; background:#dc3545; border:none; color:#fff; padding:5px 10px; cursor:pointer; border-radius:5px; }
-.language { text-align:right; margin-bottom:10px; cursor:pointer; font-size:20px;}
-@media (max-width:600px) { .container { margin:10px auto; } table { font-size:12px; } input, select { font-size:12px; } }
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:1000;}
+.modal-content { background:#fff; padding:15px; border-radius:10px; width:95%; max-width:500px; position:relative; overflow-x:auto; }
+.close-btn { position:absolute; top:8px; right:10px; background:#dc3545; border:none; color:#fff; padding:4px 8px; cursor:pointer; border-radius:5px; font-size:12px; }
+.language { text-align:right; margin-bottom:8px; cursor:pointer; font-size:20px;}
+img.member-photo { width:60px; height:60px; object-fit:cover; border-radius:50%; }
+@media (max-width:600px) { .container { margin:10px; padding:15px; } table { font-size:11px; } input, select { font-size:12px; } }
 </style>
 </head>
 <body>
@@ -40,6 +41,8 @@ th { background:#007bff; color:#fff; }
 <!-- Member Registration Page -->
 <div class="container hidden" id="memberPage">
 <h2 id="memberTitle">👤 உறுப்பினர் பதிவு</h2>
+<input type="hidden" id="editId">
+<input type="text" id="regNo" placeholder="பதிவு எண் (e.g. GYM101)">
 <input type="text" id="name" placeholder="பெயர்">
 <input type="number" id="age" placeholder="வயது">
 <select id="gender">
@@ -53,9 +56,9 @@ th { background:#007bff; color:#fff; }
 <input type="text" id="aadhaar" placeholder="ஆதார் எண்">
 <select id="plan">
   <option value="">உறுப்பினர் திட்டம்</option>
-  <option value="மாதம் - ₹500">மாதம் - ₹500</option>
+  <option value="மாதம் - ₹400">மாதம் - ₹400</option>
   <option value="காலாண்டு - ₹1200">காலாண்டு - ₹1200</option>
-  <option value="வருடம் - ₹4000">வருடம் - ₹4000</option>
+  <option value="வருடம் - ₹4800">வருடம் - ₹4800</option>
 </select>
 <input type="date" id="startDate">
 <label id="medicalLabel">மருத்துவ பிரச்சினைகள்:</label>
@@ -64,25 +67,28 @@ th { background:#007bff; color:#fff; }
   <option value="ஆம்">ஆம்</option>
 </select>
 <textarea id="medicalDetails" placeholder="ஆம் என்றால், குறிப்பிட்டு எழுதவும்"></textarea>
+<label id="feesLabel">கட்டணம் செலுத்தப்பட்டதா?</label>
+<select id="feesStatus">
+  <option value="Not Paid">Not Paid</option>
+  <option value="Paid">Paid</option>
+</select>
+<label>உறுப்பினர் புகைப்படம்:</label>
+<input type="file" id="photo" accept="image/*">
 <button onclick="registerMember()" id="registerBtn">பதிவு</button>
-<button class="logout" onclick="logout()">வெளியேறு</button>
+<button class="logout" onclick="logout()" id="logoutBtn">வெளியேறு</button>
 </div>
 
 <!-- Admin Pages -->
 <div class="container hidden" id="adminPage">
 <h2 id="adminTitle">📋 உறுப்பினர் பதிவுகள்</h2>
-<table id="memberTable">
-<tr><th id="thName">பெயர்</th><th id="thPlan">திட்டம்</th><th id="thDate">Start Date</th><th id="thActions">Actions</th></tr>
-</table>
+<table id="memberTable"></table>
 <button onclick="gotoFeePage()" id="feeBtn">💵 கட்டணங்கள்</button>
-<button class="logout" onclick="logout()">வெளியேறு</button>
+<button class="logout" onclick="logout()" id="logoutBtn2">வெளியேறு</button>
 </div>
 
 <div class="container hidden" id="feePage">
 <h2 id="feeTitle">💵 கட்டண விவரங்கள்</h2>
-<table id="feeTable">
-<tr><th id="feeThName">பெயர்</th><th id="feeThPlan">Plan</th><th id="feeThAmount">Fee Amount</th><th id="feeThPaid">Fees Paid</th><th id="feeThActions">Actions</th></tr>
-</table>
+<table id="feeTable"></table>
 <button onclick="backToAdmin()" id="backBtn">🔙 Back</button>
 </div>
 
@@ -90,12 +96,14 @@ th { background:#007bff; color:#fff; }
 <div class="modal" id="memberModal">
 <div class="modal-content">
 <button class="close-btn" onclick="closeModal()">Close</button>
-<h3>Member Details</h3>
+<h3 id="modalTitle">Member Details</h3>
 <table id="detailTable"></table>
+<img id="modalPhoto" class="member-photo" src="" alt="Member Photo">
 </div>
 </div>
 
 <script>
+// Users
 let users={"admin":"1234","member":"1234"};
 let role="";
 let members=[];
@@ -105,184 +113,223 @@ let lang="ta";
 function toggleLanguage(){ 
   lang = (lang=="ta") ? "en" : "ta"; 
   updateLanguage(); 
+  loadMembers();
 }
 
-// Update all labels, placeholders, table headers
+// Update language for placeholders and buttons
 function updateLanguage(){
-if(lang=="en"){
-  document.getElementById("loginTitle").innerText="🔐 Login";
-  document.getElementById("loginBtn").innerText="Login";
-  document.getElementById("username").placeholder="Username";
-  document.getElementById("password").placeholder="Password";
-  document.getElementById("memberTitle").innerText="👤 Member Registration";
-  document.getElementById("name").placeholder="Name";
-  document.getElementById("age").placeholder="Age";
-  document.getElementById("gender").options[0].text="Gender";
-  document.getElementById("mobile").placeholder="Mobile Number";
-  document.getElementById("email").placeholder="Email";
-  document.getElementById("address").placeholder="Address";
-  document.getElementById("aadhaar").placeholder="Aadhaar Number";
-  document.getElementById("plan").options[0].text="Membership Plan";
-  document.getElementById("plan").options[1].text="Month - ₹500";
-  document.getElementById("plan").options[2].text="Quarter - ₹1200";
-  document.getElementById("plan").options[3].text="Year - ₹4000";
-  document.getElementById("medicalLabel").innerText="Medical Issues:";
-  document.getElementById("medical").options[0].text="No";
-  document.getElementById("medical").options[1].text="Yes";
-  document.getElementById("medicalDetails").placeholder="If yes, please specify";
-  document.getElementById("registerBtn").innerText="Register";
-  document.getElementById("adminTitle").innerText="📋 Member Records";
-  document.getElementById("thName").innerText="Name";
-  document.getElementById("thPlan").innerText="Plan";
-  document.getElementById("thDate").innerText="Start Date";
-  document.getElementById("thActions").innerText="Actions";
-  document.getElementById("feeTitle").innerText="💵 Fee Details";
-  document.getElementById("feeThName").innerText="Name";
-  document.getElementById("feeThPlan").innerText="Plan";
-  document.getElementById("feeThAmount").innerText="Fee Amount";
-  document.getElementById("feeThPaid").innerText="Fees Paid";
-  document.getElementById("feeThActions").innerText="Actions";
-  document.getElementById("feeBtn").innerText="💵 Fees";
-  document.getElementById("backBtn").innerText="🔙 Back";
-}else{
-  document.getElementById("loginTitle").innerText="🔐 உள்நுழைவு";
-  document.getElementById("loginBtn").innerText="உள்நுழை";
-  document.getElementById("username").placeholder="பயனர் பெயர்";
-  document.getElementById("password").placeholder="கடவுச்சொல்";
-  document.getElementById("memberTitle").innerText="👤 உறுப்பினர் பதிவு";
-  document.getElementById("name").placeholder="பெயர்";
-  document.getElementById("age").placeholder="வயது";
-  document.getElementById("gender").options[0].text="பாலினம்";
-  document.getElementById("mobile").placeholder="கைபேசி எண்";
-  document.getElementById("email").placeholder="மின்னஞ்சல்";
-  document.getElementById("address").placeholder="முகவரி";
-  document.getElementById("aadhaar").placeholder="ஆதார் எண்";
-  document.getElementById("plan").options[0].text="உறுப்பினர் திட்டம்";
-  document.getElementById("plan").options[1].text="மாதம் - ₹500";
-  document.getElementById("plan").options[2].text="காலாண்டு - ₹1200";
-  document.getElementById("plan").options[3].text="வருடம் - ₹4000";
-  document.getElementById("medicalLabel").innerText="மருத்துவ பிரச்சினைகள்:";
-  document.getElementById("medical").options[0].text="இல்லை";
-  document.getElementById("medical").options[1].text="ஆம்";
-  document.getElementById("medicalDetails").placeholder="ஆம் என்றால், குறிப்பிட்டு எழுதவும்";
-  document.getElementById("registerBtn").innerText="பதிவு";
-  document.getElementById("adminTitle").innerText="📋 உறுப்பினர் பதிவுகள்";
-  document.getElementById("thName").innerText="பெயர்";
-  document.getElementById("thPlan").innerText="திட்டம்";
-  document.getElementById("thDate").innerText="Start Date";
-  document.getElementById("thActions").innerText="Actions";
-  document.getElementById("feeTitle").innerText="💵 கட்டண விவரங்கள்";
-  document.getElementById("feeThName").innerText="பெயர்";
-  document.getElementById("feeThPlan").innerText="Plan";
-  document.getElementById("feeThAmount").innerText="Fee Amount";
-  document.getElementById("feeThPaid").innerText="Fees Paid";
-  document.getElementById("feeThActions").innerText="Actions";
-  document.getElementById("feeBtn").innerText="💵 கட்டணங்கள்";
-  document.getElementById("backBtn").innerText="🔙 Back";
-}
+  document.getElementById("loginTitle").innerText = (lang=="ta")?"🔐 உள்நுழைவு":"🔐 Login";
+  document.getElementById("username").placeholder = (lang=="ta")?"பயனர் பெயர்":"Username";
+  document.getElementById("password").placeholder = (lang=="ta")?"கடவுச்சொல்":"Password";
+  document.getElementById("loginBtn").innerText = (lang=="ta")?"உள்நுழை":"Login";
+  document.getElementById("memberTitle").innerText = (lang=="ta")?"👤 உறுப்பினர் பதிவு":"👤 Member Registration";
+  document.getElementById("regNo").placeholder = (lang=="ta")?"பதிவு எண் (e.g. GYM101)":"Reg. No (e.g. GYM101)";
+  document.getElementById("name").placeholder = (lang=="ta")?"பெயர்":"Name";
+  document.getElementById("age").placeholder = (lang=="ta")?"வயது":"Age";
+  document.getElementById("mobile").placeholder = (lang=="ta")?"கைபேசி எண்":"Mobile";
+  document.getElementById("email").placeholder = (lang=="ta")?"மின்னஞ்சல்":"Email";
+  document.getElementById("address").placeholder = (lang=="ta")?"முகவரி":"Address";
+  document.getElementById("aadhaar").placeholder = (lang=="ta")?"ஆதார் எண்":"Aadhaar No";
+  document.getElementById("medicalLabel").innerText = (lang=="ta")?"மருத்துவ பிரச்சினைகள்:":"Medical Issues:";
+  document.getElementById("medicalDetails").placeholder = (lang=="ta")?"ஆம் என்றால், குறிப்பிட்டு எழுதவும்":"If yes, specify details";
+  document.getElementById("feesLabel").innerText = (lang=="ta")?"கட்டணம் செலுத்தப்பட்டதா?":"Fees Paid?";
+  document.getElementById("registerBtn").innerText = (lang=="ta")?"பதிவு":"Register";
+  document.getElementById("adminTitle").innerText = (lang=="ta")?"📋 உறுப்பினர் பதிவுகள்":"📋 Member Records";
+  document.getElementById("feeTitle").innerText = (lang=="ta")?"💵 கட்டண விவரங்கள்":"💵 Fee Details";
+  document.getElementById("backBtn").innerText = (lang=="ta")?"🔙 Back":"🔙 Back";
+  document.querySelectorAll(".logout").forEach(b=>b.innerText=(lang=="ta")?"வெளியேறு":"Logout");
 }
 
 // Login
 function login(){
-let u=document.getElementById("username").value;
-let p=document.getElementById("password").value;
-if(users[u] && users[u]===p){
-role=u;
-document.getElementById("loginPage").classList.add("hidden");
-if(u=="admin") document.getElementById("adminPage").classList.remove("hidden");
-else document.getElementById("memberPage").classList.remove("hidden");
-loadMembers();
-}else{ alert(lang=="ta"?"❌ தவறான பயனர் பெயர் அல்லது கடவுச்சொல்!":"❌ Invalid credentials!"); }
+  let u=document.getElementById("username").value;
+  let p=document.getElementById("password").value;
+  if(users[u] && users[u]===p){
+    role=u;
+    document.getElementById("loginPage").classList.add("hidden");
+    if(u=="admin") document.getElementById("adminPage").classList.remove("hidden");
+    else document.getElementById("memberPage").classList.remove("hidden");
+    loadMembers();
+  } else { 
+    alert(lang=="ta"?"❌ தவறான பயனர் பெயர் அல்லது கடவுச்சொல்!":"❌ Invalid credentials!"); 
+  }
 }
 
 // Logout
 function logout(){
-role="";
-document.getElementById("loginPage").classList.remove("hidden");
-document.getElementById("memberPage").classList.add("hidden");
-document.getElementById("adminPage").classList.add("hidden");
-document.getElementById("feePage").classList.add("hidden");
-closeModal();
+  role="";
+  document.getElementById("loginPage").classList.remove("hidden");
+  document.getElementById("memberPage").classList.add("hidden");
+  document.getElementById("adminPage").classList.add("hidden");
+  document.getElementById("feePage").classList.add("hidden");
+  closeModal();
+  clearForm();
 }
 
-// Register member
+// Register or Update Member
 function registerMember(){
-let member={
-id:Date.now(), name:document.getElementById("name").value, age:document.getElementById("age").value,
-gender:document.getElementById("gender").value, mobile:document.getElementById("mobile").value,
-email:document.getElementById("email").value, address:document.getElementById("address").value,
-aadhaar:document.getElementById("aadhaar").value, plan:document.getElementById("plan").value,
-date:document.getElementById("startDate").value, medical:document.getElementById("medical").value,
-medicalDetails:document.getElementById("medicalDetails").value, amount:0, feesPaid:false
-};
-if(!member.name || !member.plan || !member.date){ alert(lang=="ta"?"⚠️ தேவையான பகுதிகளை நிரப்பவும்!":"⚠️ Fill required fields!"); return; }
-members.push(member);
-localStorage.setItem("members",JSON.stringify(members));
-clearForm();
-alert(lang=="ta"?"✅ உறுப்பினர் பதிவு செய்யப்பட்டது":"✅ Member Registered");
+  const file = document.getElementById("photo").files[0];
+  const reader = new FileReader();
+  reader.onload = function(e){
+    let editId=document.getElementById("editId").value;
+    let member={
+      id: editId ? parseInt(editId) : Date.now(),
+      regNo:document.getElementById("regNo").value,
+      name:document.getElementById("name").value,
+      age:document.getElementById("age").value,
+      gender:document.getElementById("gender").value,
+      mobile:document.getElementById("mobile").value,
+      email:document.getElementById("email").value,
+      address:document.getElementById("address").value,
+      aadhaar:document.getElementById("aadhaar").value,
+      plan:document.getElementById("plan").value,
+      date:document.getElementById("startDate").value,
+      medical:document.getElementById("medical").value,
+      medicalDetails:document.getElementById("medicalDetails").value,
+      amount:0,
+      feesPaid:document.getElementById("feesStatus").value,
+      photo:e.target.result
+    };
+    if(!member.regNo || !member.name || !member.plan || !member.date){ 
+      alert(lang=="ta"?"⚠️ தேவையான பகுதிகளை நிரப்பவும்!":"⚠️ Fill required fields!"); 
+      return; 
+    }
+    members=JSON.parse(localStorage.getItem("members"))||[];
+    if(!editId && members.some(m=>m.regNo===member.regNo)){
+      alert(lang=="ta"?"⚠️ இந்த பதிவு எண் ஏற்கனவே உள்ளது!":"⚠️ This Reg.No already exists!");
+      return;
+    }
+    if(editId){
+      members=members.map(m=> m.id==editId ? member : m);
+    } else { members.push(member); }
+    localStorage.setItem("members",JSON.stringify(members));
+    clearForm();
+    alert(lang=="ta"?"✅ உறுப்பினர் பதிவு செய்யப்பட்டது":"✅ Member Registered");
+    loadMembers();
+  };
+  
+  if(file) reader.readAsDataURL(file);
+  else {
+    if(!document.getElementById("editId").value){
+      alert(lang=="ta"?"⚠️ புகைப்படத்தை தேர்வு செய்யவும்!":"⚠️ Select a photo!");
+      return;
+    } else {
+      let editId=document.getElementById("editId").value;
+      let existing=members.find(m=>m.id==editId);
+      reader.onload({target:{result: existing.photo}});
+    }
+  }
 }
 
-// Load members
+// Edit Member
+function editMember(id){
+  let m=members.find(x=>x.id==id);
+  if(!m) return;
+  document.getElementById("editId").value=m.id;
+  document.getElementById("regNo").value=m.regNo;
+  document.getElementById("name").value=m.name;
+  document.getElementById("age").value=m.age;
+  document.getElementById("gender").value=m.gender;
+  document.getElementById("mobile").value=m.mobile;
+  document.getElementById("email").value=m.email;
+  document.getElementById("address").value=m.address;
+  document.getElementById("aadhaar").value=m.aadhaar;
+  document.getElementById("plan").value=m.plan;
+  document.getElementById("startDate").value=m.date;
+  document.getElementById("medical").value=m.medical;
+  document.getElementById("medicalDetails").value=m.medicalDetails;
+  document.getElementById("feesStatus").value=m.feesPaid;
+  document.getElementById("memberPage").classList.remove("hidden");
+  document.getElementById("adminPage").classList.add("hidden");
+  window.scrollTo(0,0);
+}
+
+// Clear Form
+function clearForm(){
+  document.getElementById("editId").value="";
+  ["regNo","name","age","gender","mobile","email","address","aadhaar","plan","startDate","medicalDetails","photo"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("medical").value="இல்லை";
+  document.getElementById("feesStatus").value="Not Paid";
+}
+
+// Load Members
 function loadMembers(){
-members=JSON.parse(localStorage.getItem("members"))||[];
-if(role=="admin"){
-let table=document.getElementById("memberTable");
-table.innerHTML=`<tr><th id="thName">${lang=="ta"?"பெயர்":"Name"}</th><th id="thPlan">${lang=="ta"?"திட்டம்":"Plan"}</th><th id="thDate">Start Date</th><th id="thActions">Actions</th></tr>`;
-members.forEach(m=>{
-let row=`<tr>
-<td><a href="#" onclick="showMember(${m.id})">${m.name}</a></td>
-<td>${m.plan}</td>
-<td>${m.date}</td>
-<td><button onclick='removeMember(${m.id})'>❌</button></td>
-</tr>`;
-table.innerHTML+=row;
-});
-let feeTable=document.getElementById("feeTable");
-if(feeTable){ feeTable.innerHTML=`<tr><th>${lang=="ta"?"பெயர்":"Name"}</th><th>Plan</th><th>Fee Amount</th><th>Fees Paid</th><th>Actions</th></tr>`;
-members.forEach(m=>{
-let row=`<tr>
-<td>${m.name}</td>
-<td>${m.plan}</td>
-<td><input type='number' value='${m.amount}' onchange='updateAmount(${m.id},this.value)'></td>
-<td>${m.feesPaid?"Yes":"No"}</td>
-<td><button onclick='markPaid(${m.id})'>Paid</button></td>
-</tr>`;
-feeTable.innerHTML+=row;
-});
-}
-}
+  members=JSON.parse(localStorage.getItem("members"))||[];
+  let today=new Date();
+  members.forEach(m=>{
+    if(m.date){
+      let start=new Date(m.date);
+      let planType=m.plan.split(" - ")[0];
+      if(planType=="மாதம்"||planType=="Monthly"){ start.setMonth(start.getMonth()+1); if(today>start) m.feesPaid=(lang=="ta"?"கட்டப்படவில்லை":"Not Paid"); }
+      else if(planType=="காலாண்டு"||planType=="Quarterly"){ start.setMonth(start.getMonth()+3); if(today>start) m.feesPaid=(lang=="ta"?"கட்டப்படவில்லை":"Not Paid"); }
+      else if(planType=="வருடம்"||planType=="Annual"){ start.setFullYear(start.getFullYear()+1); if(today>start) m.feesPaid=(lang=="ta"?"கட்டப்படவில்லை":"Not Paid"); }
+    }
+  });
+  localStorage.setItem("members",JSON.stringify(members));
+  if(role=="admin"){
+    let table=document.getElementById("memberTable");
+    table.innerHTML=`<tr><th>Photo</th><th>Reg.No</th><th>${lang=="ta"?"பெயர்":"Name"}</th><th>${lang=="ta"?"திட்டம்":"Plan"}</th><th>Start Date</th><th>${lang=="ta"?"கட்டண நிலை":"Fees Paid"}</th><th>${lang=="ta"?"செயல்":"Actions"}</th></tr>`;
+    members.forEach(m=>{
+      table.innerHTML+=`<tr>
+        <td><img class="member-photo" src="${m.photo}" /></td>
+        <td>${m.regNo}</td>
+        <td><a href="#" onclick="showMember(${m.id})">${m.name}</a></td>
+        <td>${m.plan}</td>
+        <td>${m.date}</td>
+        <td>${m.feesPaid}</td>
+        <td>
+          <button onclick='editMember(${m.id})'>✏️</button>
+          <button onclick='removeMember(${m.id})'>❌</button>
+        </td>
+      </tr>`;
+    });
+
+    let feeTable=document.getElementById("feeTable");
+    if(feeTable){
+      feeTable.innerHTML=`<tr><th>Reg.No</th><th>${lang=="ta"?"பெயர்":"Name"}</th><th>Plan</th><th>${lang=="ta"?"கட்டண தொகை":"Fee Amount"}</th><th>${lang=="ta"?"கட்டண நிலை":"Fees Paid"}</th><th>${lang=="ta"?"செயல்":"Actions"}</th></tr>`;
+      members.forEach(m=>{
+        feeTable.innerHTML+=`<tr>
+          <td>${m.regNo}</td>
+          <td>${m.name}</td>
+          <td>${m.plan}</td>
+          <td><input type='number' value='${m.amount}' onchange='updateAmount(${m.id},this.value)'></td>
+          <td>${m.feesPaid}</td>
+          <td><button onclick='markPaid(${m.id})'>${lang=="ta"?"கட்டப்பட்டது":"Paid"}</button></td>
+        </tr>`;
+      });
+    }
+  }
 }
 
-// Show member modal
+// Member Modal
 function showMember(id){
-let m=members.find(x=>x.id==id);
-if(!m) return;
-let table=document.getElementById("detailTable");
-table.innerHTML=`<tr><th>Field</th><th>Value</th></tr>
-<tr><td>${lang=="ta"?"பெயர்":"Name"}</td><td>${m.name}</td></tr>
-<tr><td>${lang=="ta"?"வயது":"Age"}</td><td>${m.age}</td></tr>
-<tr><td>${lang=="ta"?"பாலினம்":"Gender"}</td><td>${m.gender}</td></tr>
-<tr><td>${lang=="ta"?"கைபேசி எண்":"Mobile"}</td><td>${m.mobile}</td></tr>
-<tr><td>${lang=="ta"?"மின்னஞ்சல்":"Email"}</td><td>${m.email}</td></tr>
-<tr><td>${lang=="ta"?"முகவரி":"Address"}</td><td>${m.address}</td></tr>
-<tr><td>${lang=="ta"?"ஆதார் எண்":"Aadhaar"}</td><td>${m.aadhaar}</td></tr>
-<tr><td>${lang=="ta"?"திட்டம்":"Plan"}</td><td>${m.plan}</td></tr>
-<tr><td>Start Date</td><td>${m.date}</td></tr>
-<tr><td>${lang=="ta"?"மருத்துவ பிரச்சினைகள்":"Medical"}</td><td>${m.medical}</td></tr>
-<tr><td>${lang=="ta"?"மருத்துவ விவரங்கள்":"Medical Details"}</td><td>${m.medicalDetails}</td></tr>
-<tr><td>${lang=="ta"?"கட்டண தொகை":"Fee Amount"}</td><td>${m.amount}</td></tr>
-<tr><td>${lang=="ta"?"கட்டண செலுத்தப்பட்டதா":"Fees Paid"}</td><td>${m.feesPaid?"Yes":"No"}</td></tr>`;
-document.getElementById("memberModal").style.display="flex";
+  let m=members.find(x=>x.id==id);
+  if(!m) return;
+  let table=document.getElementById("detailTable");
+  let modalPhoto=document.getElementById("modalPhoto");
+  table.innerHTML=`<tr><th>Field</th><th>Value</th></tr>
+    <tr><td>Reg.No</td><td>${m.regNo}</td></tr>
+    <tr><td>${lang=="ta"?"பெயர்":"Name"}</td><td>${m.name}</td></tr>
+    <tr><td>${lang=="ta"?"வயது":"Age"}</td><td>${m.age}</td></tr>
+    <tr><td>${lang=="ta"?"பாலினம்":"Gender"}</td><td>${m.gender}</td></tr>
+    <tr><td>${lang=="ta"?"கைபேசி எண்":"Mobile"}</td><td>${m.mobile}</td></tr>
+    <tr><td>${lang=="ta"?"மின்னஞ்சல்":"Email"}</td><td>${m.email}</td></tr>
+    <tr><td>${lang=="ta"?"முகவரி":"Address"}</td><td>${m.address}</td></tr>
+    <tr><td>${lang=="ta"?"ஆதார் எண்":"Aadhaar"}</td><td>${m.aadhaar}</td></tr>
+    <tr><td>${lang=="ta"?"திட்டம்":"Plan"}</td><td>${m.plan}</td></tr>
+    <tr><td>Start Date</td><td>${m.date}</td></tr>
+    <tr><td>${lang=="ta"?"மருத்துவ பிரச்சினைகள்":"Medical Issues"}</td><td>${m.medical}</td></tr>
+    <tr><td>${lang=="ta"?"மருத்துவ விவரங்கள்":"Medical Details"}</td><td>${m.medicalDetails}</td></tr>
+    <tr><td>${lang=="ta"?"கட்டண நிலை":"Fees Paid"}</td><td>${m.feesPaid}</td></tr>`;
+  modalPhoto.src = m.photo;
+  document.getElementById("memberModal").style.display="flex";
 }
-
 function closeModal(){ document.getElementById("memberModal").style.display="none"; }
-
-function removeMember(id){ members=members.filter(x=>x.id!=id); localStorage.setItem("members",JSON.stringify(members)); loadMembers(); }
-function updateAmount(id,value){ let m=members.find(x=>x.id==id); if(m){m.amount=value; localStorage.setItem("members",JSON.stringify(members));} }
-function markPaid(id){ let m=members.find(x=>x.id==id); if(m){m.feesPaid=true; m.amount=0; localStorage.setItem("members",JSON.stringify(members)); loadMembers();} }
-function clearForm(){["name","age","gender","mobile","email","address","aadhaar","plan","startDate","medical","medicalDetails"].forEach(id=>{document.getElementById(id).value="";});}
-function gotoFeePage(){document.getElementById("adminPage").classList.add("hidden");document.getElementById("feePage").classList.remove("hidden");loadMembers();}
-function backToAdmin(){document.getElementById("feePage").classList.add("hidden");document.getElementById("adminPage").classList.remove("hidden");loadMembers();}
+function removeMember(id){ members = members.filter(x=>x.id!=id); localStorage.setItem("members",JSON.stringify(members)); loadMembers(); }
+function gotoFeePage(){ document.getElementById("adminPage").classList.add("hidden"); document.getElementById("feePage").classList.remove("hidden"); }
+function backToAdmin(){ document.getElementById("feePage").classList.add("hidden"); document.getElementById("adminPage").classList.remove("hidden"); }
+function updateAmount(id,value){ let m=members.find(x=>x.id==id); if(m){ m.amount=parseFloat(value)||0; localStorage.setItem("members",JSON.stringify(members)); } }
+function markPaid(id){ let m=members.find(x=>x.id==id); if(m){ m.feesPaid=lang=="ta"?"கட்டப்பட்டது":"Paid"; localStorage.setItem("members",JSON.stringify(members)); loadMembers(); } }
 </script>
 </body>
 </html>
