@@ -2,334 +2,712 @@
 <html lang="ta">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3, user-scalable=yes">
-<title>Mister Fitness - Gym Registration & Fees</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title id="pageTitle">Mister Fitness - Gym Registration & Fees</title>
+<!-- Load Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-body { font-family: Arial,sans-serif; margin:0; padding:0; background:linear-gradient(135deg,#4facfe,#00f2fe);}
-header { text-align:center; padding:15px; color:#fff; font-size:24px; font-weight:bold; }
-.container { max-width:600px; margin:15px auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 6px 15px rgba(0,0,0,0.2);}
-h2 { text-align:center; color:#333; margin-bottom:15px; font-size:20px;}
-input, select, textarea, button { width:100%; padding:8px; margin:5px 0; border:1px solid #ccc; border-radius:6px; font-size:14px;}
-button { background:#007bff; color:#fff; font-weight:bold; cursor:pointer; border:none; }
-button:hover { background:#0056b3; }
-.logout { background:#dc3545; margin-top:8px;}
-.hidden { display:none; }
-table { width:100%; border-collapse:collapse; margin-top:10px; font-size:12px; }
-th, td { border:1px solid #ccc; padding:6px; text-align:center; }
-th { background:#007bff; color:#fff; }
-.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:1000;}
-.modal-content { background:#fff; padding:15px; border-radius:10px; width:95%; max-width:500px; position:relative; overflow-x:auto; }
-.close-btn { position:absolute; top:8px; right:10px; background:#dc3545; border:none; color:#fff; padding:4px 8px; cursor:pointer; border-radius:5px; font-size:12px; }
-.language { text-align:right; margin-bottom:8px; cursor:pointer; font-size:20px;}
-img.member-photo { width:60px; height:60px; object-fit:cover; border-radius:50%; }
-@media (max-width:600px) { .container { margin:10px; padding:15px; } table { font-size:11px; } input, select { font-size:12px; } }
+/* --- CUSTOM STYLES (Kept minimal for background and specific components) --- */
+body { 
+    font-family: 'Inter', sans-serif; 
+    margin:0; 
+    padding:0; 
+    background:linear-gradient(135deg,#4facfe,#00f2fe); 
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+header { 
+    text-align:center; 
+    padding:1rem; 
+    color:#fff; 
+    font-size:1.625rem; 
+    font-weight:bold; 
+    background-color: #1f2937; /* Darker header for contrast */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.container { 
+    margin: 20px auto; 
+    padding: 1.5rem; 
+    border-radius: 0.75rem; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    width: 95%; /* Responsive width */
+    max-width: 600px;
+}
+
+.reg-display { 
+    padding: 10px; 
+    background: #e0f7fa; 
+    border: 1px dashed #00bcd4; 
+    border-radius: 6px; 
+    margin-bottom: 15px; 
+    text-align: center; 
+    font-weight: bold; 
+    font-size: 1.1em; 
+    color: #007bff;
+}
+
+/* Modal Styles */
+.modal { 
+    display:none; 
+    position:fixed; 
+    top:0; 
+    left:0; 
+    width:100%; 
+    height:100%; 
+    background:rgba(0,0,0,0.7); 
+    justify-content:center; 
+    align-items:center; 
+    z-index:1000; 
+    padding: 10px;
+}
+.modal-content { 
+    background:#fff; 
+    padding:20px; 
+    border-radius:12px; 
+    width:95%; 
+    max-width:600px; 
+    position:relative; 
+    overflow-x:auto; 
+}
+
+img.member-photo { 
+    width:70px; 
+    height:70px; 
+    object-fit:cover; 
+    border-radius:50%; 
+    border: 3px solid #007bff; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Hide utility */
+.hidden { display:none !important; }
+
 </style>
 </head>
-<body>
+<body class="selection:bg-blue-200">
 
 <header>Mister Fitness 🏋️</header>
-<div class="language" onclick="toggleLanguage()">🌐</div>
+<div class="language absolute top-4 right-5 cursor-pointer text-3xl text-white drop-shadow-lg" onclick="toggleLanguage()">🌐</div>
 
-<!-- Login Page -->
-<div class="container" id="loginPage">
-<h2 id="loginTitle">🔐 உள்நுழைவு</h2>
-<input type="text" id="username" placeholder="பயனர் பெயர்">
-<input type="password" id="password" placeholder="கடவுச்சொல்">
-<button onclick="login()" id="loginBtn">உள்நுழை</button>
+<!-- Login Page Container (Tailwind classes for structure) -->
+<div class="container bg-white mx-auto shadow-2xl" id="loginPage">
+    <h2 id="loginTitle" class="text-center text-2xl font-bold text-blue-600 mb-6 border-b-2 border-blue-400 pb-2">🔐 உள்நுழைவு</h2>
+    
+    <div class="mb-4">
+        <input type="text" id="username" placeholder="பயனர் பெயர்" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+    </div>
+    <div class="mb-6">
+        <input type="password" id="password" placeholder="கடவுச்சொல்" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+    </div>
+    
+    <button onclick="login()" id="loginBtn" class="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200 active:scale-[0.99] shadow-md">உள்நுழை</button>
 </div>
 
-<!-- Member Registration Page -->
-<div class="container hidden" id="memberPage">
-<h2 id="memberTitle">👤 உறுப்பினர் பதிவு</h2>
-<input type="hidden" id="editId">
-<input type="text" id="regNo" placeholder="பதிவு எண் (e.g. GYM101)">
-<input type="text" id="name" placeholder="பெயர்">
-<input type="number" id="age" placeholder="வயது">
-<select id="gender">
-  <option value="">பாலினம்</option>
-  <option value="ஆண்">ஆண்</option>
-  <option value="பெண்">பெண்</option>
-</select>
-<input type="text" id="mobile" placeholder="கைபேசி எண்">
-<input type="email" id="email" placeholder="மின்னஞ்சல்">
-<input type="text" id="address" placeholder="முகவரி">
-<input type="text" id="aadhaar" placeholder="ஆதார் எண்">
-<select id="plan">
-  <option value="">உறுப்பினர் திட்டம்</option>
-  <option value="மாதம் - ₹400">மாதம் - ₹400</option>
-  <option value="காலாண்டு - ₹1200">காலாண்டு - ₹1200</option>
-  <option value="வருடம் - ₹4800">வருடம் - ₹4800</option>
-</select>
-<input type="date" id="startDate">
-<label id="medicalLabel">மருத்துவ பிரச்சினைகள்:</label>
-<select id="medical">
-  <option value="இல்லை">இல்லை</option>
-  <option value="ஆம்">ஆம்</option>
-</select>
-<textarea id="medicalDetails" placeholder="ஆம் என்றால், குறிப்பிட்டு எழுதவும்"></textarea>
-<label id="feesLabel">கட்டணம் செலுத்தப்பட்டதா?</label>
-<select id="feesStatus">
-  <option value="Not Paid">Not Paid</option>
-  <option value="Paid">Paid</option>
-</select>
-<label>உறுப்பினர் புகைப்படம்:</label>
-<input type="file" id="photo" accept="image/*">
-<button onclick="registerMember()" id="registerBtn">பதிவு</button>
-<button class="logout" onclick="logout()" id="logoutBtn">வெளியேறு</button>
+<!-- Member Registration Page Container (Tailwind classes for structure) -->
+<div class="container bg-white mx-auto shadow-2xl hidden" id="memberPage">
+    <h2 id="memberTitle" class="text-center text-2xl font-bold text-blue-600 mb-6 border-b-2 border-blue-400 pb-2">👤 உறுப்பினர் பதிவு</h2>
+    
+    <input type="hidden" id="editId">
+
+    <!-- Display for the generated registration number -->
+    <div id="regNoDisplay" class="reg-display hidden"></div>
+    
+    <!-- Input Fields -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <input type="text" id="name" placeholder="பெயர்" class="p-3 border border-gray-300 rounded-lg">
+        <input type="number" id="age" placeholder="வயது" class="p-3 border border-gray-300 rounded-lg">
+        <input type="text" id="mobile" placeholder="கைபேசி எண்" class="p-3 border border-gray-300 rounded-lg">
+        <input type="email" id="email" placeholder="மின்னஞ்சல்" class="p-3 border border-gray-300 rounded-lg">
+    </div>
+    
+    <input type="text" id="address" placeholder="முகவரி" class="w-full p-3 border border-gray-300 rounded-lg mt-4">
+    <input type="text" id="aadhaar" placeholder="ஆதார் எண்" class="w-full p-3 border border-gray-300 rounded-lg mt-4">
+
+    <!-- Plan and Date -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+        <div>
+            <label for="plan" id="planLabel" class="block text-sm font-semibold text-gray-700 mb-1">உறுப்பினர் திட்டம்:</label>
+            <select id="plan" class="w-full p-3 border border-gray-300 rounded-lg"></select>
+        </div>
+        <div>
+            <label for="startDate" id="startDateLabel" class="block text-sm font-semibold text-gray-700 mb-1">சேர்க்கை தேதி:</label>
+            <input type="date" id="startDate" class="w-full p-3 border border-gray-300 rounded-lg">
+        </div>
+    </div>
+
+    <!-- Medical and Fees Status -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+        <div>
+            <label id="medicalLabel" class="block text-sm font-semibold text-gray-700 mb-1">மருத்துவ பிரச்சினைகள்:</label>
+            <select id="medical" class="w-full p-3 border border-gray-300 rounded-lg">
+                <!-- Options populated by JS for translation -->
+            </select>
+        </div>
+        <div>
+            <label id="feesLabel" class="block text-sm font-semibold text-gray-700 mb-1">கட்டணம் செலுத்தப்பட்டதா?</label>
+            <select id="feesStatus" class="w-full p-3 border border-gray-300 rounded-lg">
+                <!-- Options populated by JS for translation -->
+            </select>
+        </div>
+    </div>
+    
+    <textarea id="medicalDetails" placeholder="ஆம் என்றால், குறிப்பிட்டு எழுதவும்" style="min-height: 80px;" class="w-full p-3 border border-gray-300 rounded-lg mt-4"></textarea>
+    
+    <!-- Payment Method and Photo -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+        <div>
+            <label for="paymentMethod" id="paymentMethodLabel" class="block text-sm font-semibold text-gray-700 mb-1">கட்டண முறை:</label>
+            <select id="paymentMethod" class="w-full p-3 border border-gray-300 rounded-lg"></select>
+        </div>
+        <div>
+            <label id="photoLabel" class="block text-sm font-semibold text-gray-700 mb-1">உறுப்பினர் புகைப்படம்:</label>
+            <input type="file" id="photo" accept="image/*" class="w-full text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+        </div>
+    </div>
+
+    <button onclick="registerMember()" id="registerBtn" class="w-full py-3 mt-6 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-200 active:scale-[0.99] shadow-md">பதிவு</button>
+    <button class="logout w-full py-3 mt-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-200 active:scale-[0.99] shadow-md" onclick="logout()" id="logoutBtn">வெளியேறு</button>
 </div>
 
 <!-- Admin Pages -->
-<div class="container hidden" id="adminPage">
-<h2 id="adminTitle">📋 உறுப்பினர் பதிவுகள்</h2>
-<table id="memberTable"></table>
-<button onclick="gotoFeePage()" id="feeBtn">💵 கட்டணங்கள்</button>
-<button class="logout" onclick="logout()" id="logoutBtn2">வெளியேறு</button>
+<div class="container bg-white mx-auto shadow-2xl hidden" id="adminPage">
+    <h2 id="adminTitle" class="text-center text-2xl font-bold text-blue-600 mb-6 border-b-2 border-blue-400 pb-2">📋 உறுப்பினர் பதிவுகள்</h2>
+    <button onclick="document.getElementById('adminPage').classList.add('hidden'); document.getElementById('memberPage').classList.remove('hidden'); clearForm();" class="w-full py-2 mb-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200 active:scale-[0.99] shadow-md">+ புதிய உறுப்பினர்</button>
+    <div class="overflow-x-auto">
+        <table id="memberTable" class="min-w-full divide-y divide-gray-200 rounded-lg shadow-lg"></table>
+    </div>
+    <button onclick="gotoFeePage()" id="feeBtn" class="w-full py-3 mt-4 bg-yellow-400 text-gray-900 font-semibold rounded-lg hover:bg-yellow-500 transition duration-200 active:scale-[0.99] shadow-md">💵 கட்டணங்கள்</button>
+    <button class="logout w-full py-3 mt-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-200 active:scale-[0.99] shadow-md" onclick="logout()" id="logoutBtn2">வெளியேறு</button>
 </div>
 
-<div class="container hidden" id="feePage">
-<h2 id="feeTitle">💵 கட்டண விவரங்கள்</h2>
-<table id="feeTable"></table>
-<button onclick="backToAdmin()" id="backBtn">🔙 Back</button>
+<div class="container bg-white mx-auto shadow-2xl hidden" id="feePage">
+    <h2 id="feeTitle" class="text-center text-2xl font-bold text-blue-600 mb-6 border-b-2 border-blue-400 pb-2">💵 கட்டண விவரங்கள்</h2>
+    <div class="overflow-x-auto">
+        <table id="feeTable" class="min-w-full divide-y divide-gray-200 rounded-lg shadow-lg"></table>
+    </div>
+    <button onclick="backToAdmin()" id="backBtn" class="w-full py-3 mt-4 bg-gray-500 text-white font-semibold rounded-lg hover:bg-gray-600 transition duration-200 active:scale-[0.99] shadow-md">🔙 பின்</button>
 </div>
 
 <!-- Member Details Modal -->
 <div class="modal" id="memberModal">
 <div class="modal-content">
-<button class="close-btn" onclick="closeModal()">Close</button>
-<h3 id="modalTitle">Member Details</h3>
-<table id="detailTable"></table>
-<img id="modalPhoto" class="member-photo" src="" alt="Member Photo">
+<button class="close-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md absolute top-3 right-3 transition duration-150" onclick="closeModal()">Close</button>
+<h3 id="modalTitle" class="text-center text-xl font-bold text-gray-800 mt-2 mb-4">Member Details</h3>
+<img id="modalPhoto" class="member-photo mx-auto" src="" alt="Member Photo" onerror="this.onerror=null;this.src='https://placehold.co/70x70/cccccc/333333?text=N/A';" />
+<div class="overflow-x-auto mt-4">
+    <table id="detailTable" class="min-w-full divide-y divide-gray-200"></table>
+</div>
 </div>
 </div>
 
 <script>
-// Users
+// Global variables
 let users={"admin":"1234","member":"1234"};
 let role="";
 let members=[];
 let lang="ta";
 
-// Language toggle
-function toggleLanguage(){ 
-  lang = (lang=="ta") ? "en" : "ta"; 
-  updateLanguage(); 
-  loadMembers();
+// --- REGISTRATION NUMBER LOGIC (SIMPLIFIED AS REQUESTED) ---
+
+/**
+ * Generates the next unique Registration Number in the requested DD/MM/C101 format.
+ */
+function generateRegNo(dateString) {
+    const date = new Date(dateString);
+    // Ensure date is valid
+    if (isNaN(date) || dateString === "") {
+        displayMessage(lang === "ta" ? "⚠️ சேர்க்கை தேதி செல்லுபடியாகவில்லை. பதிவு செய்வதற்கு முன் சேர்க்கை தேதியைத் தேர்ந்தெடுக்கவும்." : "⚠️ Joining Date is not valid. Please select a Joining Date before registering.");
+        return null;
+    }
+    
+    // DD/MM format
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    
+    // Format requested: DD/MM/C101
+    // Note: The C101 is hardcoded as sequential counter logic was removed in the previous version.
+    return `${dd}/${mm}/C101`; 
+}
+
+// --- LANGUAGE/TRANSLATION LOGIC ---
+
+// Function to update dropdown options based on current language
+function updateSelectOptions() {
+    // 1. Plan Options
+    const planSelect = document.getElementById('plan');
+    // Store current value to re-select after update
+    const selectedPlan = planSelect.value;
+    planSelect.innerHTML = `<option value="">${lang === "ta" ? "உறுப்பினர் திட்டம்" : "Membership Plan"}</option>`;
+    const plans = [
+        { ta: "மாதம் - ₹400", en: "Monthly - ₹400", value: "Monthly - ₹400" },
+        { ta: "காலாண்டு - ₹1200", en: "Quarterly - ₹1200", value: "Quarterly - ₹1200" },
+        { ta: "வருடம் - ₹4800", en: "Annual - ₹4800", value: "Annual - ₹4800" },
+    ];
+    plans.forEach(plan => {
+        const option = document.createElement('option');
+        option.value = plan.value; 
+        option.textContent = lang === "ta" ? plan.ta : plan.en;
+        if (plan.value === selectedPlan) option.selected = true;
+        planSelect.appendChild(option);
+    });
+
+    // 2. Medical Options
+    const medicalSelect = document.getElementById('medical');
+    const selectedMedical = medicalSelect.value;
+    medicalSelect.innerHTML = `
+        <option value="No">${lang === "ta" ? "இல்லை" : "No"}</option>
+        <option value="Yes">${lang === "ta" ? "ஆம்" : "Yes"}</option>
+    `;
+    if (selectedMedical) medicalSelect.value = selectedMedical;
+
+
+    // 3. Fees Status Options
+    const feesSelect = document.getElementById('feesStatus');
+    const selectedFees = feesSelect.value;
+    feesSelect.innerHTML = `
+        <option value="Not Paid">${lang === "ta" ? "கட்டப்படவில்லை" : "Not Paid"}</option>
+        <option value="Paid">${lang === "ta" ? "கட்டப்பட்டது" : "Paid"}</option>
+    `;
+    if (selectedFees) feesSelect.value = selectedFees;
+
+    // 4. Payment Method Options (NEW)
+    const paymentMethodSelect = document.getElementById('paymentMethod');
+    const selectedMethod = paymentMethodSelect.value;
+    paymentMethodSelect.innerHTML = `<option value="">${lang === "ta" ? "கட்டண முறை தேர்வு" : "Select Payment Method"}</option>`;
+    const methods = [
+        { ta: "பணம் (Cash)", en: "Cash", value: "Cash" },
+        { ta: "GPay", en: "GPay", value: "GPay" },
+    ];
+    methods.forEach(method => {
+        const option = document.createElement('option');
+        option.value = method.value;
+        option.textContent = lang === "ta" ? method.ta : method.en;
+        if (method.value === selectedMethod) option.selected = true;
+        paymentMethodSelect.appendChild(option);
+    });
 }
 
 // Update language for placeholders and buttons
 function updateLanguage(){
-  document.getElementById("loginTitle").innerText = (lang=="ta")?"🔐 உள்நுழைவு":"🔐 Login";
-  document.getElementById("username").placeholder = (lang=="ta")?"பயனர் பெயர்":"Username";
-  document.getElementById("password").placeholder = (lang=="ta")?"கடவுச்சொல்":"Password";
-  document.getElementById("loginBtn").innerText = (lang=="ta")?"உள்நுழை":"Login";
-  document.getElementById("memberTitle").innerText = (lang=="ta")?"👤 உறுப்பினர் பதிவு":"👤 Member Registration";
-  document.getElementById("regNo").placeholder = (lang=="ta")?"பதிவு எண் (e.g. GYM101)":"Reg. No (e.g. GYM101)";
-  document.getElementById("name").placeholder = (lang=="ta")?"பெயர்":"Name";
-  document.getElementById("age").placeholder = (lang=="ta")?"வயது":"Age";
-  document.getElementById("mobile").placeholder = (lang=="ta")?"கைபேசி எண்":"Mobile";
-  document.getElementById("email").placeholder = (lang=="ta")?"மின்னஞ்சல்":"Email";
-  document.getElementById("address").placeholder = (lang=="ta")?"முகவரி":"Address";
-  document.getElementById("aadhaar").placeholder = (lang=="ta")?"ஆதார் எண்":"Aadhaar No";
-  document.getElementById("medicalLabel").innerText = (lang=="ta")?"மருத்துவ பிரச்சினைகள்:":"Medical Issues:";
-  document.getElementById("medicalDetails").placeholder = (lang=="ta")?"ஆம் என்றால், குறிப்பிட்டு எழுதவும்":"If yes, specify details";
-  document.getElementById("feesLabel").innerText = (lang=="ta")?"கட்டணம் செலுத்தப்பட்டதா?":"Fees Paid?";
-  document.getElementById("registerBtn").innerText = (lang=="ta")?"பதிவு":"Register";
-  document.getElementById("adminTitle").innerText = (lang=="ta")?"📋 உறுப்பினர் பதிவுகள்":"📋 Member Records";
-  document.getElementById("feeTitle").innerText = (lang=="ta")?"💵 கட்டண விவரங்கள்":"💵 Fee Details";
-  document.getElementById("backBtn").innerText = (lang=="ta")?"🔙 Back":"🔙 Back";
-  document.querySelectorAll(".logout").forEach(b=>b.innerText=(lang=="ta")?"வெளியேறு":"Logout");
+    // Update Select Options (must be done first)
+    updateSelectOptions();
+
+    // Update Titles & Buttons
+    document.getElementById("pageTitle").innerText = (lang=="ta")?"Mister Fitness - ஜிம் பதிவு & கட்டணங்கள்":"Mister Fitness - Gym Registration & Fees";
+    document.getElementById("loginTitle").innerText = (lang=="ta")?"🔐 உள்நுழைவு":"🔐 Login";
+    document.getElementById("loginBtn").innerText = (lang=="ta")?"உள்நுழை":"Login";
+    document.getElementById("memberTitle").innerText = (lang=="ta")?"👤 உறுப்பினர் பதிவு":"👤 Member Registration";
+    
+    // Check if in edit mode to set button text
+    const registerBtn = document.getElementById("registerBtn");
+    registerBtn.innerText = document.getElementById("editId").value ? (lang === "ta" ? "புதுப்பிக்க" : "Update") : (lang === "ta" ? "பதிவு" : "Register");
+
+    document.getElementById("adminTitle").innerText = (lang=="ta")?"📋 உறுப்பினர் பதிவுகள்":"📋 Member Records";
+    document.getElementById("feeTitle").innerText = (lang=="ta")?"💵 கட்டண விவரங்கள்":"💵 Fee Details";
+    document.getElementById("backBtn").innerText = (lang=="ta"?"🔙 பின்":"🔙 Back");
+    document.getElementById("feeBtn").innerText = (lang=="ta"?"💵 கட்டணங்கள்":"💵 Fees");
+    document.getElementById("modalTitle").innerText = (lang=="ta"?"உறுப்பினர் விவரங்கள்":"Member Details");
+    document.querySelectorAll(".logout").forEach(b=>b.innerText=(lang=="ta")?"வெளியேறு":"Logout");
+    
+    // Update New Member button text in Admin Page
+    const newMemberButton = document.querySelector('#adminPage button:nth-child(2)');
+    if (newMemberButton) {
+        newMemberButton.innerText = (lang=="ta")?"+ புதிய உறுப்பினர்":"+ New Member";
+    }
+    
+    const closeModalButton = document.querySelector('.close-btn');
+    if (closeModalButton) {
+        closeModalButton.innerText = (lang=="ta")?"மூடு":"Close";
+    }
+
+    // Update Placeholders & Labels
+    document.getElementById("username").placeholder = (lang=="ta")?"பயனர் பெயர்":"Username";
+    document.getElementById("password").placeholder = (lang=="ta")?"கடவுச்சொல்":"Password";
+    document.getElementById("name").placeholder = (lang=="ta")?"பெயர்":"Name";
+    document.getElementById("age").placeholder = (lang=="ta")?"வயது":"Age";
+    document.getElementById("mobile").placeholder = (lang=="ta")?"கைபேசி எண்":"Mobile";
+    document.getElementById("email").placeholder = (lang=="ta")?"மின்னஞ்சல்":"Email";
+    document.getElementById("address").placeholder = (lang=="ta")?"முகவரி":"Address";
+    document.getElementById("aadhaar").placeholder = (lang=="ta")?"ஆதார் எண்":"Aadhaar No";
+    document.getElementById("startDateLabel").innerText = (lang=="ta")?"சேர்க்கை தேதி:":"Joining Date:";
+    document.getElementById("planLabel").innerText = (lang=="ta")?"உறுப்பினர் திட்டம்:":"Membership Plan:";
+    document.getElementById("medicalLabel").innerText = (lang=="ta")?"மருத்துவ பிரச்சினைகள்:":"Medical Issues:";
+    document.getElementById("medicalDetails").placeholder = (lang=="ta")?"ஆம் என்றால், குறிப்பிட்டு எழுதவும்":"If yes, specify details";
+    document.getElementById("feesLabel").innerText = (lang=="ta")?"கட்டணம் செலுத்தப்பட்டதா?":"Fees Paid?";
+    document.getElementById("paymentMethodLabel").innerText = (lang=="ta")?"கட்டண முறை:":"Payment Method:"; 
+    document.getElementById("photoLabel").innerText = (lang=="ta")?"உறுப்பினர் புகைப்படம்:":"Member Photo:";
+
+    // Reload the tables to update column headers
+    loadMembers();
 }
+
+// Language toggle
+function toggleLanguage(){ 
+    lang = (lang=="ta") ? "en" : "ta"; 
+    updateLanguage(); 
+}
+
+// Initialize language and load members on load
+window.onload = () => {
+    // Ensure all select elements are initialized with options based on default language
+    updateLanguage(); 
+    loadMembers(); // Load data initially
+};
+
+// --- CORE FUNCTIONALITY ---
 
 // Login
 function login(){
-  let u=document.getElementById("username").value;
-  let p=document.getElementById("password").value;
-  if(users[u] && users[u]===p){
-    role=u;
-    document.getElementById("loginPage").classList.add("hidden");
-    if(u=="admin") document.getElementById("adminPage").classList.remove("hidden");
-    else document.getElementById("memberPage").classList.remove("hidden");
-    loadMembers();
-  } else { 
-    alert(lang=="ta"?"❌ தவறான பயனர் பெயர் அல்லது கடவுச்சொல்!":"❌ Invalid credentials!"); 
-  }
+    let u=document.getElementById("username").value;
+    let p=document.getElementById("password").value;
+    if(users[u] && users[u]===p){
+        role=u;
+        document.getElementById("loginPage").classList.add("hidden");
+        if(u=="admin") document.getElementById("adminPage").classList.remove("hidden");
+        // NOTE: The original code showed memberPage for non-admin login. Keeping this behavior.
+        else document.getElementById("memberPage").classList.remove("hidden"); 
+        loadMembers();
+    } else { 
+        displayMessage(lang=="ta"?"❌ தவறான பயனர் பெயர் அல்லது கடவுச்சொல்!":"❌ Invalid credentials!"); 
+    }
 }
 
 // Logout
 function logout(){
-  role="";
-  document.getElementById("loginPage").classList.remove("hidden");
-  document.getElementById("memberPage").classList.add("hidden");
-  document.getElementById("adminPage").classList.add("hidden");
-  document.getElementById("feePage").classList.add("hidden");
-  closeModal();
-  clearForm();
+    role="";
+    document.getElementById("loginPage").classList.remove("hidden");
+    document.getElementById("memberPage").classList.add("hidden");
+    document.getElementById("adminPage").classList.add("hidden");
+    document.getElementById("feePage").classList.add("hidden");
+    closeModal();
+    clearForm();
+    document.getElementById("regNoDisplay").classList.add("hidden");
 }
 
 // Register or Update Member
 function registerMember(){
-  const file = document.getElementById("photo").files[0];
-  const reader = new FileReader();
-  reader.onload = function(e){
-    let editId=document.getElementById("editId").value;
-    let member={
-      id: editId ? parseInt(editId) : Date.now(),
-      regNo:document.getElementById("regNo").value,
-      name:document.getElementById("name").value,
-      age:document.getElementById("age").value,
-      gender:document.getElementById("gender").value,
-      mobile:document.getElementById("mobile").value,
-      email:document.getElementById("email").value,
-      address:document.getElementById("address").value,
-      aadhaar:document.getElementById("aadhaar").value,
-      plan:document.getElementById("plan").value,
-      date:document.getElementById("startDate").value,
-      medical:document.getElementById("medical").value,
-      medicalDetails:document.getElementById("medicalDetails").value,
-      amount:0,
-      feesPaid:document.getElementById("feesStatus").value,
-      photo:e.target.result
+    const file = document.getElementById("photo").files[0];
+    const reader = new FileReader();
+    let editId = document.getElementById("editId").value;
+    let memberData;
+
+    // Determine if photo data needs to be loaded or kept
+    const handleMemberData = (photoBase64) => {
+        
+        let newRegNo = "";
+        if (!editId) {
+            newRegNo = generateRegNo(document.getElementById("startDate").value);
+            if (!newRegNo) {
+                // Registration failed because date was invalid
+                return; 
+            }
+        }
+        
+        memberData = {
+            id: editId ? parseInt(editId) : Date.now(),
+            // Auto-generate RegNo if it's a new entry, otherwise retrieve existing
+            regNo: editId ? members.find(m => m.id == editId).regNo : newRegNo,
+            name: document.getElementById("name").value,
+            age: document.getElementById("age").value,
+            gender: "Not Specified", 
+            mobile: document.getElementById("mobile").value,
+            email: document.getElementById("email").value,
+            address: document.getElementById("address").value,
+            aadhaar: document.getElementById("aadhaar").value,
+            plan: document.getElementById("plan").value,
+            date: document.getElementById("startDate").value,
+            medical: document.getElementById("medical").value,
+            medicalDetails: document.getElementById("medicalDetails").value,
+            amount: 0,
+            feesPaid: document.getElementById("feesStatus").value,
+            paymentMethod: document.getElementById("paymentMethod").value || "Not Specified", // NEW Field
+            photo: photoBase64 
+        };
+
+        // --- VALIDATION ---
+        if(!memberData.regNo || !memberData.name || !memberData.plan || !memberData.date || !memberData.mobile){ 
+            displayMessage(lang=="ta"?"⚠️ பெயர், கைபேசி எண், திட்டம் மற்றும் சேர்க்கை தேதி போன்ற அத்தியாவசிய பகுதிகளை நிரப்பவும்!":"⚠️ Fill essential fields like Name, Mobile, Plan, and Joining Date!"); 
+            return; 
+        }
+        
+        // Load existing members from local storage
+        members=JSON.parse(localStorage.getItem("members"))||[];
+
+        if(editId){
+            members=members.map(m=> m.id==editId ? memberData : m);
+        } else { 
+            members.push(memberData); 
+        }
+        localStorage.setItem("members",JSON.stringify(members));
+        
+        // Show the generated ID only for new registration
+        if (!editId) {
+             const regDisplay = document.getElementById("regNoDisplay");
+             regDisplay.innerHTML = `${lang === "ta" ? "புதிய பதிவு எண்" : "New Reg. No"}: <strong>${memberData.regNo}</strong>`;
+             regDisplay.classList.remove("hidden");
+        }
+
+        clearForm();
+        displayMessage(lang=="ta"?"✅ உறுப்பினர் பதிவு செய்யப்பட்டது":"✅ Member Registered/Updated");
+        loadMembers();
     };
-    if(!member.regNo || !member.name || !member.plan || !member.date){ 
-      alert(lang=="ta"?"⚠️ தேவையான பகுதிகளை நிரப்பவும்!":"⚠️ Fill required fields!"); 
-      return; 
+
+    // Photo handling logic
+    if(file){
+        if (file.size > 2097152) { // 2MB limit
+            displayMessage(lang=="ta"?"⚠️ புகைப்படம் 2MB க்கும் குறைவாக இருக்க வேண்டும்.":"⚠️ Photo must be less than 2MB.");
+            return;
+        }
+        reader.onload = (e) => handleMemberData(e.target.result);
+        reader.readAsDataURL(file);
     }
-    members=JSON.parse(localStorage.getItem("members"))||[];
-    if(!editId && members.some(m=>m.regNo===member.regNo)){
-      alert(lang=="ta"?"⚠️ இந்த பதிவு எண் ஏற்கனவே உள்ளது!":"⚠️ This Reg.No already exists!");
-      return;
+    else {
+        // Use existing photo data for update or placeholder for new registration
+        if(editId){
+            let existing=members.find(m=>m.id==editId);
+            handleMemberData(existing ? existing.photo : 'https://placehold.co/70x70/cccccc/333333?text=N/A');
+        } else {
+            handleMemberData('https://placehold.co/70x70/cccccc/333333?text=N/A'); 
+        }
     }
-    if(editId){
-      members=members.map(m=> m.id==editId ? member : m);
-    } else { members.push(member); }
-    localStorage.setItem("members",JSON.stringify(members));
-    clearForm();
-    alert(lang=="ta"?"✅ உறுப்பினர் பதிவு செய்யப்பட்டது":"✅ Member Registered");
-    loadMembers();
-  };
-  
-  if(file) reader.readAsDataURL(file);
-  else {
-    if(!document.getElementById("editId").value){
-      alert(lang=="ta"?"⚠️ புகைப்படத்தை தேர்வு செய்யவும்!":"⚠️ Select a photo!");
-      return;
-    } else {
-      let editId=document.getElementById("editId").value;
-      let existing=members.find(m=>m.id==editId);
-      reader.onload({target:{result: existing.photo}});
-    }
-  }
 }
 
 // Edit Member
 function editMember(id){
-  let m=members.find(x=>x.id==id);
-  if(!m) return;
-  document.getElementById("editId").value=m.id;
-  document.getElementById("regNo").value=m.regNo;
-  document.getElementById("name").value=m.name;
-  document.getElementById("age").value=m.age;
-  document.getElementById("gender").value=m.gender;
-  document.getElementById("mobile").value=m.mobile;
-  document.getElementById("email").value=m.email;
-  document.getElementById("address").value=m.address;
-  document.getElementById("aadhaar").value=m.aadhaar;
-  document.getElementById("plan").value=m.plan;
-  document.getElementById("startDate").value=m.date;
-  document.getElementById("medical").value=m.medical;
-  document.getElementById("medicalDetails").value=m.medicalDetails;
-  document.getElementById("feesStatus").value=m.feesPaid;
-  document.getElementById("memberPage").classList.remove("hidden");
-  document.getElementById("adminPage").classList.add("hidden");
-  window.scrollTo(0,0);
+    let m=members.find(x=>x.id==id);
+    if(!m) return;
+    
+    // Hide auto-generated ID display when editing
+    document.getElementById("regNoDisplay").classList.add("hidden");
+    
+    document.getElementById("editId").value=m.id;
+    document.getElementById("name").value=m.name;
+    document.getElementById("age").value=m.age;
+    document.getElementById("mobile").value=m.mobile;
+    document.getElementById("email").value=m.email;
+    document.getElementById("address").value=m.address;
+    document.getElementById("aadhaar").value=m.aadhaar;
+    
+    // Ensure select options are re-rendered based on language before setting value
+    updateSelectOptions(); 
+    
+    document.getElementById("plan").value=m.plan;
+    document.getElementById("startDate").value=m.date;
+    document.getElementById("medical").value=m.medical;
+    document.getElementById("medicalDetails").value=m.medicalDetails;
+    // Normalize feesPaid value to check against 'Paid'
+    document.getElementById("feesStatus").value=m.feesPaid.includes("Paid") || m.feesPaid.includes("கட்டப்பட்டது") ? "Paid" : "Not Paid";
+    document.getElementById("paymentMethod").value=m.paymentMethod || ""; // Set new field
+    
+    document.getElementById("memberPage").classList.remove("hidden");
+    document.getElementById("adminPage").classList.add("hidden");
+    document.getElementById("registerBtn").innerText = lang === "ta" ? "புதுப்பிக்க" : "Update";
+
+    window.scrollTo(0,0);
 }
 
 // Clear Form
 function clearForm(){
-  document.getElementById("editId").value="";
-  ["regNo","name","age","gender","mobile","email","address","aadhaar","plan","startDate","medicalDetails","photo"].forEach(id=>document.getElementById(id).value="");
-  document.getElementById("medical").value="இல்லை";
-  document.getElementById("feesStatus").value="Not Paid";
+    document.getElementById("editId").value="";
+    ["name","age","mobile","email","address","aadhaar","startDate","medicalDetails"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("photo").value = null; // Clear file input
+    document.getElementById("medical").value="No"; // Reset default
+    document.getElementById("feesStatus").value="Not Paid"; // Reset default
+    document.getElementById("paymentMethod").value=""; // Reset default
+    document.getElementById("registerBtn").innerText = lang === "ta" ? "பதிவு" : "Register";
+    // Reset dropdowns based on current language
+    updateSelectOptions(); 
 }
 
-// Load Members
+// Load Members and update tables
 function loadMembers(){
-  members=JSON.parse(localStorage.getItem("members"))||[];
-  let today=new Date();
-  members.forEach(m=>{
-    if(m.date){
-      let start=new Date(m.date);
-      let planType=m.plan.split(" - ")[0];
-      if(planType=="மாதம்"||planType=="Monthly"){ start.setMonth(start.getMonth()+1); if(today>start) m.feesPaid=(lang=="ta"?"கட்டப்படவில்லை":"Not Paid"); }
-      else if(planType=="காலாண்டு"||planType=="Quarterly"){ start.setMonth(start.getMonth()+3); if(today>start) m.feesPaid=(lang=="ta"?"கட்டப்படவில்லை":"Not Paid"); }
-      else if(planType=="வருடம்"||planType=="Annual"){ start.setFullYear(start.getFullYear()+1); if(today>start) m.feesPaid=(lang=="ta"?"கட்டப்படவில்லை":"Not Paid"); }
-    }
-  });
-  localStorage.setItem("members",JSON.stringify(members));
-  if(role=="admin"){
-    let table=document.getElementById("memberTable");
-    table.innerHTML=`<tr><th>Photo</th><th>Reg.No</th><th>${lang=="ta"?"பெயர்":"Name"}</th><th>${lang=="ta"?"திட்டம்":"Plan"}</th><th>Start Date</th><th>${lang=="ta"?"கட்டண நிலை":"Fees Paid"}</th><th>${lang=="ta"?"செயல்":"Actions"}</th></tr>`;
+    members=JSON.parse(localStorage.getItem("members"))||[];
+    const paidText = lang=="ta"?"கட்டப்பட்டது":"Paid";
+    const notPaidText = lang=="ta"?"கட்டப்படவில்லை":"Not Paid";
+    
+    let today=new Date();
+    
     members.forEach(m=>{
-      table.innerHTML+=`<tr>
-        <td><img class="member-photo" src="${m.photo}" /></td>
-        <td>${m.regNo}</td>
-        <td><a href="#" onclick="showMember(${m.id})">${m.name}</a></td>
-        <td>${m.plan}</td>
-        <td>${m.date}</td>
-        <td>${m.feesPaid}</td>
-        <td>
-          <button onclick='editMember(${m.id})'>✏️</button>
-          <button onclick='removeMember(${m.id})'>❌</button>
-        </td>
-      </tr>`;
-    });
+        // The stored feesPaid value might be in either language. Check for both.
+        const isPaid = m.feesPaid === "Paid" || m.feesPaid === "கட்டப்பட்டது";
+        
+        if(m.date && isPaid){
+            let start=new Date(m.date);
+            let planType=m.plan.split(" - ")[0];
+            let renewalDate = new Date(m.date);
+                
+            if(planType.includes("Monthly") || planType.includes("மாதம்")){ renewalDate.setMonth(start.getMonth()+1); }
+            else if(planType.includes("Quarterly") || planType.includes("காலாண்டு")){ renewalDate.setMonth(start.getMonth()+3); }
+            else if(planType.includes("Annual") || planType.includes("வருடம்")){ renewalDate.setFullYear(start.getFullYear()+1); }
 
-    let feeTable=document.getElementById("feeTable");
-    if(feeTable){
-      feeTable.innerHTML=`<tr><th>Reg.No</th><th>${lang=="ta"?"பெயர்":"Name"}</th><th>Plan</th><th>${lang=="ta"?"கட்டண தொகை":"Fee Amount"}</th><th>${lang=="ta"?"கட்டண நிலை":"Fees Paid"}</th><th>${lang=="ta"?"செயல்":"Actions"}</th></tr>`;
-      members.forEach(m=>{
-        feeTable.innerHTML+=`<tr>
-          <td>${m.regNo}</td>
-          <td>${m.name}</td>
-          <td>${m.plan}</td>
-          <td><input type='number' value='${m.amount}' onchange='updateAmount(${m.id},this.value)'></td>
-          <td>${m.feesPaid}</td>
-          <td><button onclick='markPaid(${m.id})'>${lang=="ta"?"கட்டப்பட்டது":"Paid"}</button></td>
+            if(today>renewalDate) {
+                m.feesPaid = notPaidText;
+            } else {
+                // Ensure it is translated correctly for display
+                m.feesPaid = paidText; 
+            }
+        } else {
+            // Ensure it is translated correctly for display
+            m.feesPaid = notPaidText;
+        }
+        // Ensure payment method is not null for display
+        if (!m.paymentMethod) m.paymentMethod = "Not Specified";
+    });
+    localStorage.setItem("members",JSON.stringify(members));
+
+    if(role=="admin"){
+        // 1. Member Table (Admin)
+        let table=document.getElementById("memberTable");
+        const memberHeaders = `<tr>
+            <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"புகைப்படம்":"Photo"}</th>
+            <th class="px-4 py-2 bg-blue-600 text-white">Reg.No</th>
+            <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"பெயர்":"Name"}</th>
+            <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"திட்டம்":"Plan"}</th>
+            <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"சேர்க்கை தேதி":"Joining Date"}</th>
+            <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"கட்டண நிலை":"Fees Paid"}</th>
+            <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"செயல்":"Actions"}</th>
         </tr>`;
-      });
+        table.innerHTML=memberHeaders;
+        members.forEach(m=>{
+            table.innerHTML+=`<tr class="hover:bg-gray-50 border-b">
+                <td class="px-4 py-3 text-center"><img class="member-photo mx-auto" src="${m.photo}" onerror="this.onerror=null;this.src='https://placehold.co/70x70/cccccc/333333?text=N/A';" /></td>
+                <td class="px-4 py-3">${m.regNo}</td>
+                <td class="px-4 py-3"><a href="#" onclick="showMember(${m.id})" class="text-blue-600 hover:text-blue-800 font-medium">${m.name}</a></td>
+                <td class="px-4 py-3">${m.plan}</td>
+                <td class="px-4 py-3">${m.date}</td>
+                <td class="px-4 py-3 font-semibold" style="color: ${m.feesPaid.includes(paidText) ? 'green' : 'red'};">${m.feesPaid}</td>
+                <td class="px-4 py-3 text-center">
+                    <button onclick='editMember(${m.id})' class="bg-yellow-400 text-gray-800 p-2 text-xs rounded-md hover:bg-yellow-500 transition duration-150 mr-1">✏️</button>
+                    <button onclick='removeMember(${m.id})' class="bg-red-500 text-white p-2 text-xs rounded-md hover:bg-red-600 transition duration-150">❌</button>
+                </td>
+            </tr>`;
+        });
+
+        // 2. Fee Table (Fees Page)
+        let feeTable=document.getElementById("feeTable");
+        if(feeTable){
+            const feeHeaders = `<tr>
+                <th class="px-4 py-2 bg-blue-600 text-white">Reg.No</th>
+                <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"பெயர்":"Name"}</th>
+                <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"திட்டம்":"Plan"}</th>
+                <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"கட்டண முறை":"P. Method"}</th>
+                <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"கட்டண தொகை (₹)":"Fee Amount (₹)"}</th>
+                <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"கட்டண நிலை":"Fees Paid"}</th>
+                <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"செயல்":"Actions"}</th>
+            </tr>`;
+            feeTable.innerHTML=feeHeaders;
+            members.forEach(m=>{
+                // Create the Payment Method dropdown for marking paid (using minimal styling)
+                const paymentOptions = `
+                    <select id="paymentMethod-${m.id}" class="w-24 p-1 text-sm border border-gray-300 rounded-md block mx-auto mb-1">
+                        <option value="Cash" ${m.paymentMethod === 'Cash' ? 'selected' : ''}>${lang === "ta" ? "பணம்" : "Cash"}</option>
+                        <option value="GPay" ${m.paymentMethod === 'GPay' ? 'selected' : ''}>GPay</option>
+                        <option value="Not Specified" ${m.paymentMethod === 'Not Specified' ? 'selected' : ''}>${lang === "ta" ? "தேர்வு" : "Select"}</option>
+                    </select>
+                `;
+
+                feeTable.innerHTML+=`<tr class="hover:bg-gray-50 border-b">
+                    <td class="px-4 py-3">${m.regNo}</td>
+                    <td class="px-4 py-3">${m.name}</td>
+                    <td class="px-4 py-3">${m.plan}</td>
+                    <td class="px-4 py-3 text-xs">${m.paymentMethod === "Not Specified" ? (lang=="ta"?"குறிப்பிடப்படவில்லை":"N/A") : m.paymentMethod}</td> <!-- Display existing method -->
+                    <td class="px-4 py-3"><input type='number' value='${m.amount}' onchange='updateAmount(${m.id},this.value)' class="w-20 p-1 text-sm border border-gray-300 rounded-md"></td>
+                    <td class="px-4 py-3 font-semibold" style="color: ${m.feesPaid.includes(paidText) ? 'green' : 'red'};">${m.feesPaid}</td>
+                    <td class="px-4 py-3 text-center">
+                        ${m.feesPaid.includes(notPaidText) ? paymentOptions : ''} 
+                        <button onclick='markPaid(${m.id})' class="bg-green-600 text-white p-2 text-xs rounded-md hover:bg-green-700 transition duration-150 w-24">${lang=="ta"?"கட்டப்பட்டது":"Mark Paid"}</button>
+                    </td>
+                </tr>`;
+            });
+        }
     }
-  }
 }
 
 // Member Modal
 function showMember(id){
-  let m=members.find(x=>x.id==id);
-  if(!m) return;
-  let table=document.getElementById("detailTable");
-  let modalPhoto=document.getElementById("modalPhoto");
-  table.innerHTML=`<tr><th>Field</th><th>Value</th></tr>
-    <tr><td>Reg.No</td><td>${m.regNo}</td></tr>
-    <tr><td>${lang=="ta"?"பெயர்":"Name"}</td><td>${m.name}</td></tr>
-    <tr><td>${lang=="ta"?"வயது":"Age"}</td><td>${m.age}</td></tr>
-    <tr><td>${lang=="ta"?"பாலினம்":"Gender"}</td><td>${m.gender}</td></tr>
-    <tr><td>${lang=="ta"?"கைபேசி எண்":"Mobile"}</td><td>${m.mobile}</td></tr>
-    <tr><td>${lang=="ta"?"மின்னஞ்சல்":"Email"}</td><td>${m.email}</td></tr>
-    <tr><td>${lang=="ta"?"முகவரி":"Address"}</td><td>${m.address}</td></tr>
-    <tr><td>${lang=="ta"?"ஆதார் எண்":"Aadhaar"}</td><td>${m.aadhaar}</td></tr>
-    <tr><td>${lang=="ta"?"திட்டம்":"Plan"}</td><td>${m.plan}</td></tr>
-    <tr><td>Start Date</td><td>${m.date}</td></tr>
-    <tr><td>${lang=="ta"?"மருத்துவ பிரச்சினைகள்":"Medical Issues"}</td><td>${m.medical}</td></tr>
-    <tr><td>${lang=="ta"?"மருத்துவ விவரங்கள்":"Medical Details"}</td><td>${m.medicalDetails}</td></tr>
-    <tr><td>${lang=="ta"?"கட்டண நிலை":"Fees Paid"}</td><td>${m.feesPaid}</td></tr>`;
-  modalPhoto.src = m.photo;
-  document.getElementById("memberModal").style.display="flex";
+    let m=members.find(x=>x.id==id);
+    if(!m) return;
+    const paidText = lang=="ta"?"கட்டப்பட்டது":"Paid";
+
+    let table=document.getElementById("detailTable");
+    let modalPhoto=document.getElementById("modalPhoto");
+    
+    // Table Headers
+    const modalHeaders = `<tr class="bg-gray-100">
+        <th class="px-4 py-2 text-left w-1/3 text-gray-700">${lang=="ta"?"விபரம்":"Field"}</th>
+        <th class="px-4 py-2 text-left w-2/3 text-gray-700">${lang=="ta"?"மதிப்பு":"Value"}</th>
+    </tr>`;
+
+    // Table Content
+    table.innerHTML=modalHeaders + `
+        <tr class="border-b"><td class="px-4 py-2 font-medium">Reg.No</td><td class="px-4 py-2">${m.regNo}</td></tr>
+        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"பெயர்":"Name"}</td><td class="px-4 py-2">${m.name}</td></tr>
+        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"வயது":"Age"}</td><td class="px-4 py-2">${m.age}</td></tr>
+        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"கைபேசி எண்":"Mobile"}</td><td class="px-4 py-2">${m.mobile}</td></tr>
+        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"மின்னஞ்சல்":"Email"}</td><td class="px-4 py-2">${m.email}</td></tr>
+        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"முகவரி":"Address"}</td><td class="px-4 py-2">${m.address}</td></tr>
+        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"ஆதார் எண்":"Aadhaar"}</td><td class="px-4 py-2">${m.aadhaar}</td></tr>
+        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"திட்டம்":"Plan"}</td><td class="px-4 py-2">${m.plan}</td></tr>
+        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"சேர்க்கை தேதி":"Joining Date"}</td><td class="px-4 py-2">${m.date}</td></tr>
+        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"மருத்துவ பிரச்சினைகள்":"Medical Issues"}</td><td class="px-4 py-2">${m.medical}</td></tr>
+        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"மருத்துவ விவரங்கள்":"Medical Details"}</td><td class="px-4 py-2">${m.medicalDetails}</td></tr>
+        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"கட்டண முறை":"Payment Method"}</td><td class="px-4 py-2">${m.paymentMethod || (lang=="ta"?"குறிப்பிடப்படவில்லை":"Not Specified")}</td></tr>
+        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"கட்டண நிலை":"Fees Paid"}</td><td class="px-4 py-2 font-semibold" style="color: ${m.feesPaid.includes(paidText) ? 'green' : 'red'};">${m.feesPaid}</td></tr>`;
+    
+    modalPhoto.src = m.photo;
+    document.getElementById("memberModal").style.display="flex";
 }
+
+// Utility Functions
+function displayMessage(message) {
+    const messageBox = document.createElement('div');
+    messageBox.id = 'messageBox';
+    messageBox.style.cssText = 'position: fixed; top: 0; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 0 0 8px 8px; z-index: 10000; transition: all 0.5s; opacity: 0;';
+    document.body.appendChild(messageBox);
+    messageBox.innerText = message;
+    messageBox.style.opacity = 1;
+    setTimeout(() => {
+        messageBox.style.opacity = 0;
+        setTimeout(() => messageBox.remove(), 500);
+    }, 3000);
+}
+
 function closeModal(){ document.getElementById("memberModal").style.display="none"; }
-function removeMember(id){ members = members.filter(x=>x.id!=id); localStorage.setItem("members",JSON.stringify(members)); loadMembers(); }
-function gotoFeePage(){ document.getElementById("adminPage").classList.add("hidden"); document.getElementById("feePage").classList.remove("hidden"); }
+function removeMember(id){ 
+    members = members.filter(x=>x.id!=id); 
+    localStorage.setItem("members",JSON.stringify(members)); 
+    loadMembers(); 
+    displayMessage(lang=="ta"?"❌ உறுப்பினர் நீக்கப்பட்டது.":"❌ Member removed.");
+}
+function gotoFeePage(){ document.getElementById("adminPage").classList.add("hidden"); document.getElementById("feePage").classList.remove("hidden"); loadMembers(); }
 function backToAdmin(){ document.getElementById("feePage").classList.add("hidden"); document.getElementById("adminPage").classList.remove("hidden"); }
-function updateAmount(id,value){ let m=members.find(x=>x.id==id); if(m){ m.amount=parseFloat(value)||0; localStorage.setItem("members",JSON.stringify(members)); } }
-function markPaid(id){ let m=members.find(x=>x.id==id); if(m){ m.feesPaid=lang=="ta"?"கட்டப்பட்டது":"Paid"; localStorage.setItem("members",JSON.stringify(members)); loadMembers(); } }
+
+function updateAmount(id,value){ 
+    let m=members.find(x=>x.id==id); 
+    if(m){ 
+        m.amount=parseFloat(value)||0; 
+        localStorage.setItem("members",JSON.stringify(members)); 
+    } 
+}
+
+function markPaid(id){ 
+    let m=members.find(x=>x.id==id); 
+    if(m){ 
+        // Get the selected payment method from the dropdown associated with this row
+        const paymentMethodElement = document.getElementById(`paymentMethod-${id}`);
+        const selectedMethod = paymentMethodElement ? paymentMethodElement.value : m.paymentMethod;
+
+        m.feesPaid=lang=="ta"?"கட்டப்பட்டது":"Paid"; 
+        m.date = new Date().toISOString().substring(0, 10); // Update joining date to today (renewal date)
+        m.paymentMethod = selectedMethod !== "Not Specified" ? selectedMethod : m.paymentMethod; // Only update if a valid method is selected
+        
+        localStorage.setItem("members",JSON.stringify(members)); 
+        loadMembers(); 
+        displayMessage(lang=="ta"?"✅ கட்டணம் கட்டப்பட்டதாக குறிக்கப்பட்டது.":"✅ Fee marked as Paid.");
+    } 
+}
 </script>
 </body>
 </html>
