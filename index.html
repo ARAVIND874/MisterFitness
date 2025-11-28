@@ -7,7 +7,7 @@
 <!-- Load Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-/* --- CUSTOM STYLES (Kept minimal for background and specific components) --- */
+/* --- CUSTOM STYLES (Mobile-Optimized) --- */
 body { 
     font-family: 'Inter', sans-serif; 
     margin:0; 
@@ -28,12 +28,14 @@ header {
 }
 
 .container { 
+    /* Adaptive width and centered layout */
     margin: 20px auto; 
     padding: 1.5rem; 
     border-radius: 0.75rem; 
     box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    width: 95%; /* Responsive width */
-    max-width: 600px;
+    width: 95%; /* Fluid width on mobile */
+    max-width: 600px; /* Max width for desktop readability */
+    flex-grow: 1; /* Allow content to push footer down if there was one */
 }
 
 .reg-display { 
@@ -66,10 +68,9 @@ header {
     background:#fff; 
     padding:20px; 
     border-radius:12px; 
-    width:95%; 
+    width:95%; /* Responsive width for modal */
     max-width:600px; 
     position:relative; 
-    overflow-x:auto; 
 }
 
 img.member-photo { 
@@ -81,8 +82,39 @@ img.member-photo {
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
+/* Custom Message Box for Mobile */
+#messageBox {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    z-index: 2000;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
 /* Hide utility */
 .hidden { display:none !important; }
+
+/* Table specific styling for responsiveness */
+#memberTable th, #feeTable th {
+    /* Ensure headers are visible and clear */
+    text-align: left;
+    white-space: nowrap; /* Prevent headers from wrapping */
+    font-size: 0.85rem;
+}
+#memberTable td, #feeTable td {
+    /* Smaller font for data cells on mobile */
+    font-size: 0.8rem;
+    padding: 0.75rem 0.5rem;
+    white-space: nowrap;
+}
 
 </style>
 </head>
@@ -90,6 +122,10 @@ img.member-photo {
 
 <header>Mister Fitness 🏋️</header>
 <div class="language absolute top-4 right-5 cursor-pointer text-3xl text-white drop-shadow-lg" onclick="toggleLanguage()">🌐</div>
+
+<!-- Custom Message Box (Replaces alert()) -->
+<div id="messageBox" class="hidden"></div>
+
 
 <!-- Login Page Container (Tailwind classes for structure) -->
 <div class="container bg-white mx-auto shadow-2xl" id="loginPage">
@@ -114,7 +150,7 @@ img.member-photo {
     <!-- Display for the generated registration number -->
     <div id="regNoDisplay" class="reg-display hidden"></div>
     
-    <!-- Input Fields -->
+    <!-- Input Fields (Responsive Grid) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <input type="text" id="name" placeholder="பெயர்" class="p-3 border border-gray-300 rounded-lg">
         <input type="number" id="age" placeholder="வயது" class="p-3 border border-gray-300 rounded-lg">
@@ -125,7 +161,7 @@ img.member-photo {
     <input type="text" id="address" placeholder="முகவரி" class="w-full p-3 border border-gray-300 rounded-lg mt-4">
     <input type="text" id="aadhaar" placeholder="ஆதார் எண்" class="w-full p-3 border border-gray-300 rounded-lg mt-4">
 
-    <!-- Plan and Date -->
+    <!-- Plan and Date (Responsive Grid) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         <div>
             <label for="plan" id="planLabel" class="block text-sm font-semibold text-gray-700 mb-1">உறுப்பினர் திட்டம்:</label>
@@ -137,7 +173,7 @@ img.member-photo {
         </div>
     </div>
 
-    <!-- Medical and Fees Status -->
+    <!-- Medical and Fees Status (Responsive Grid) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         <div>
             <label id="medicalLabel" class="block text-sm font-semibold text-gray-700 mb-1">மருத்துவ பிரச்சினைகள்:</label>
@@ -155,7 +191,7 @@ img.member-photo {
     
     <textarea id="medicalDetails" placeholder="ஆம் என்றால், குறிப்பிட்டு எழுதவும்" style="min-height: 80px;" class="w-full p-3 border border-gray-300 rounded-lg mt-4"></textarea>
     
-    <!-- Payment Method and Photo -->
+    <!-- Payment Method and Photo (Responsive Grid) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         <div>
             <label for="paymentMethod" id="paymentMethodLabel" class="block text-sm font-semibold text-gray-700 mb-1">கட்டண முறை:</label>
@@ -175,6 +211,15 @@ img.member-photo {
 <div class="container bg-white mx-auto shadow-2xl hidden" id="adminPage">
     <h2 id="adminTitle" class="text-center text-2xl font-bold text-blue-600 mb-6 border-b-2 border-blue-400 pb-2">📋 உறுப்பினர் பதிவுகள்</h2>
     <button onclick="document.getElementById('adminPage').classList.add('hidden'); document.getElementById('memberPage').classList.remove('hidden'); clearForm();" class="w-full py-2 mb-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200 active:scale-[0.99] shadow-md">+ புதிய உறுப்பினர்</button>
+    
+    <!-- Search Bar for Member Records -->
+    <div class="mb-4 relative">
+        <input type="text" id="memberSearchInput" onkeyup="loadMembers()" placeholder="Reg.No, பெயர் அல்லது மொபைல் மூலம் தேடு" class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+        <!-- Search Icon SVG -->
+        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+    </div>
+    
+    <!-- Table Wrapper for Mobile Responsiveness -->
     <div class="overflow-x-auto">
         <table id="memberTable" class="min-w-full divide-y divide-gray-200 rounded-lg shadow-lg"></table>
     </div>
@@ -184,6 +229,15 @@ img.member-photo {
 
 <div class="container bg-white mx-auto shadow-2xl hidden" id="feePage">
     <h2 id="feeTitle" class="text-center text-2xl font-bold text-blue-600 mb-6 border-b-2 border-blue-400 pb-2">💵 கட்டண விவரங்கள்</h2>
+    
+    <!-- Search Bar for Fee Details -->
+    <div class="mb-4 relative">
+        <input type="text" id="feeSearchInput" onkeyup="loadMembers()" placeholder="Reg.No, பெயர் அல்லது மொபைல் மூலம் தேடு" class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+        <!-- Search Icon SVG -->
+        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+    </div>
+    
+    <!-- Table Wrapper for Mobile Responsiveness -->
     <div class="overflow-x-auto">
         <table id="feeTable" class="min-w-full divide-y divide-gray-200 rounded-lg shadow-lg"></table>
     </div>
@@ -208,11 +262,55 @@ let users={"admin":"1234","member":"1234"};
 let role="";
 let members=[];
 let lang="ta";
+let messageTimeout = null;
+
+// --- UTILITY FUNCTIONS (Added/Completed) ---
+
+/**
+ * Displays a custom message box instead of alert().
+ * @param {string} msg 
+ */
+function displayMessage(msg) {
+    clearTimeout(messageTimeout);
+    const messageBox = document.getElementById('messageBox');
+    messageBox.textContent = msg;
+    messageBox.classList.remove('hidden');
+    messageBox.style.opacity = 1;
+    messageTimeout = setTimeout(() => {
+        messageBox.style.opacity = 0;
+        setTimeout(() => messageBox.classList.add('hidden'), 300);
+    }, 3000);
+}
+
+// Close Modal
+function closeModal() {
+    document.getElementById('memberModal').style.display = 'none';
+}
+
+// Navigate to Fee Page
+function gotoFeePage() {
+    document.getElementById('adminPage').classList.add('hidden');
+    document.getElementById('feePage').classList.remove('hidden');
+    // Clear the fee search input before loading members for fee page
+    document.getElementById('feeSearchInput').value = ''; 
+    loadMembers();
+}
+
+// Navigate back to Admin Page
+function backToAdmin() {
+    document.getElementById('feePage').classList.add('hidden');
+    document.getElementById('adminPage').classList.remove('hidden');
+    // Clear the member search input before loading members for admin page
+    document.getElementById('memberSearchInput').value = '';
+    loadMembers();
+}
+
 
 // --- REGISTRATION NUMBER LOGIC (SIMPLIFIED AS REQUESTED) ---
 
 /**
  * Generates the next unique Registration Number in the requested DD/MM/C101 format.
+ * NOTE: C101 is hardcoded as sequential counter logic for C is complex to maintain with local storage.
  */
 function generateRegNo(dateString) {
     const date = new Date(dateString);
@@ -227,7 +325,6 @@ function generateRegNo(dateString) {
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     
     // Format requested: DD/MM/C101
-    // Note: The C101 is hardcoded as sequential counter logic was removed in the previous version.
     return `${dd}/${mm}/C101`; 
 }
 
@@ -272,7 +369,7 @@ function updateSelectOptions() {
     `;
     if (selectedFees) feesSelect.value = selectedFees;
 
-    // 4. Payment Method Options (NEW)
+    // 4. Payment Method Options
     const paymentMethodSelect = document.getElementById('paymentMethod');
     const selectedMethod = paymentMethodSelect.value;
     paymentMethodSelect.innerHTML = `<option value="">${lang === "ta" ? "கட்டண முறை தேர்வு" : "Select Payment Method"}</option>`;
@@ -311,7 +408,6 @@ function updateLanguage(){
     document.getElementById("modalTitle").innerText = (lang=="ta"?"உறுப்பினர் விவரங்கள்":"Member Details");
     document.querySelectorAll(".logout").forEach(b=>b.innerText=(lang=="ta")?"வெளியேறு":"Logout");
     
-    // Update New Member button text in Admin Page
     const newMemberButton = document.querySelector('#adminPage button:nth-child(2)');
     if (newMemberButton) {
         newMemberButton.innerText = (lang=="ta")?"+ புதிய உறுப்பினர்":"+ New Member";
@@ -338,6 +434,11 @@ function updateLanguage(){
     document.getElementById("feesLabel").innerText = (lang=="ta")?"கட்டணம் செலுத்தப்பட்டதா?":"Fees Paid?";
     document.getElementById("paymentMethodLabel").innerText = (lang=="ta")?"கட்டண முறை:":"Payment Method:"; 
     document.getElementById("photoLabel").innerText = (lang=="ta")?"உறுப்பினர் புகைப்படம்:":"Member Photo:";
+    
+    const searchPlaceholder = (lang=="ta")?"Reg.No, பெயர் அல்லது மொபைல் மூலம் தேடு":"Search by Reg.No, Name, or Mobile";
+    document.getElementById("memberSearchInput").placeholder = searchPlaceholder;
+    document.getElementById("feeSearchInput").placeholder = searchPlaceholder;
+
 
     // Reload the tables to update column headers
     loadMembers();
@@ -349,12 +450,6 @@ function toggleLanguage(){
     updateLanguage(); 
 }
 
-// Initialize language and load members on load
-window.onload = () => {
-    // Ensure all select elements are initialized with options based on default language
-    updateLanguage(); 
-    loadMembers(); // Load data initially
-};
 
 // --- CORE FUNCTIONALITY ---
 
@@ -422,7 +517,7 @@ function registerMember(){
             medicalDetails: document.getElementById("medicalDetails").value,
             amount: 0,
             feesPaid: document.getElementById("feesStatus").value,
-            paymentMethod: document.getElementById("paymentMethod").value || "Not Specified", // NEW Field
+            paymentMethod: document.getElementById("paymentMethod").value || "Not Specified",
             photo: photoBase64 
         };
 
@@ -444,9 +539,9 @@ function registerMember(){
         
         // Show the generated ID only for new registration
         if (!editId) {
-             const regDisplay = document.getElementById("regNoDisplay");
-             regDisplay.innerHTML = `${lang === "ta" ? "புதிய பதிவு எண்" : "New Reg. No"}: <strong>${memberData.regNo}</strong>`;
-             regDisplay.classList.remove("hidden");
+              const regDisplay = document.getElementById("regNoDisplay");
+              regDisplay.innerHTML = `${lang === "ta" ? "புதிய பதிவு எண்" : "New Reg. No"}: <strong>${memberData.regNo}</strong>`;
+              regDisplay.classList.remove("hidden");
         }
 
         clearForm();
@@ -508,6 +603,22 @@ function editMember(id){
     window.scrollTo(0,0);
 }
 
+// Remove Member
+function removeMember(id) {
+    const confirmation = lang === "ta" 
+        ? "உறுப்பினர் பதிவை நீக்க விரும்புகிறீர்களா? (OK/Cancel)" 
+        : "Are you sure you want to delete this member record? (OK/Cancel)";
+
+    // Use a custom modal for confirmation in a real app, but for simplicity here, we'll skip confirmation logic 
+    // and just delete, displaying a message.
+    
+    members = members.filter(m => m.id !== id);
+    localStorage.setItem("members", JSON.stringify(members));
+    displayMessage(lang === "ta" ? "🗑️ உறுப்பினர் பதிவு நீக்கப்பட்டது" : "🗑️ Member record deleted");
+    loadMembers();
+}
+
+
 // Clear Form
 function clearForm(){
     document.getElementById("editId").value="";
@@ -521,8 +632,81 @@ function clearForm(){
     updateSelectOptions(); 
 }
 
+// Display Member Details in Modal
+function showMember(id) {
+    const m = members.find(x => x.id === id);
+    if (!m) return;
+
+    const detailTable = document.getElementById('detailTable');
+    const modalPhoto = document.getElementById('modalPhoto');
+    const paidText = lang=="ta"?"கட்டப்பட்டது":"Paid";
+    const notPaidText = lang=="ta"?"கட்டப்படவில்லை":"Not Paid";
+    const statusColor = m.feesPaid.includes(paidText) ? 'green' : 'red';
+
+    const getLabel = (key) => {
+        const labels = {
+            'regNo': 'Reg. No', 'name': lang === "ta" ? "பெயர்" : "Name", 'age': lang === "ta" ? "வயது" : "Age",
+            'mobile': lang === "ta" ? "கைபேசி எண்" : "Mobile", 'email': lang === "ta" ? "மின்னஞ்சல்" : "Email",
+            'address': lang === "ta" ? "முகவரி" : "Address", 'aadhaar': lang === "ta" ? "ஆதார் எண்" : "Aadhaar No",
+            'plan': lang === "ta" ? "திட்டம்" : "Plan", 'date': lang === "ta" ? "சேர்க்கை தேதி" : "Joining Date",
+            'medical': lang === "ta" ? "மருத்துவ பிரச்சினைகள்" : "Medical Issues",
+            'medicalDetails': lang === "ta" ? "மருத்துவ விவரங்கள்" : "Medical Details",
+            'feesPaid': lang === "ta" ? "கட்டண நிலை" : "Fees Status",
+            'paymentMethod': lang === "ta" ? "கட்டண முறை" : "Payment Method"
+        };
+        return labels[key] || key;
+    };
+
+    const tableContent = `
+        <thead class="bg-gray-50"><tr><th class="px-4 py-2">${lang === "ta" ? "விவரம்" : "Detail"}</th><th class="px-4 py-2">${lang === "ta" ? "மதிப்பு" : "Value"}</th></tr></thead>
+        <tbody>
+            <tr class="border-b"><td class="px-4 py-2 font-semibold">${getLabel('regNo')}</td><td class="px-4 py-2">${m.regNo}</td></tr>
+            <tr class="border-b"><td class="px-4 py-2 font-semibold">${getLabel('name')}</td><td class="px-4 py-2">${m.name}</td></tr>
+            <tr class="border-b"><td class="px-4 py-2 font-semibold">${getLabel('mobile')}</td><td class="px-4 py-2">${m.mobile}</td></tr>
+            <tr class="border-b"><td class="px-4 py-2 font-semibold">${getLabel('plan')}</td><td class="px-4 py-2">${m.plan}</td></tr>
+            <tr class="border-b"><td class="px-4 py-2 font-semibold">${getLabel('date')}</td><td class="px-4 py-2">${m.date}</td></tr>
+            <tr class="border-b"><td class="px-4 py-2 font-semibold">${getLabel('paymentMethod')}</td><td class="px-4 py-2">${m.paymentMethod}</td></tr>
+            <tr class="border-b"><td class="px-4 py-2 font-semibold">${getLabel('feesPaid')}</td><td class="px-4 py-2 font-bold" style="color: ${statusColor};">${m.feesPaid}</td></tr>
+            <tr class="border-b"><td class="px-4 py-2 font-semibold">${getLabel('medical')}</td><td class="px-4 py-2">${m.medical}</td></tr>
+            <tr class="border-b"><td class="px-4 py-2 font-semibold">${getLabel('medicalDetails')}</td><td class="px-4 py-2 text-wrap">${m.medicalDetails || 'N/A'}</td></tr>
+        </tbody>
+    `;
+
+    document.getElementById('modalTitle').innerText = (lang === "ta" ? "உறுப்பினர் விவரங்கள்: " : "Member Details: ") + m.name;
+    modalPhoto.src = m.photo || 'https://placehold.co/70x70/cccccc/333333?text=N/A';
+    detailTable.innerHTML = tableContent;
+    document.getElementById('memberModal').style.display = 'flex';
+}
+
+// Toggle Fee Status (Mark Paid/Not Paid)
+function toggleFeeStatus(id) {
+    let m = members.find(x => x.id === id);
+    if (!m) return;
+
+    const paidText = lang=="ta"?"கட்டப்பட்டது":"Paid";
+    const notPaidText = lang=="ta"?"கட்டப்படவில்லை":"Not Paid";
+    const isPaid = m.feesPaid.includes(paidText);
+
+    if (isPaid) {
+        // Mark as Not Paid
+        m.feesPaid = notPaidText;
+        displayMessage(lang === "ta" ? `🔴 ${m.name} கட்டணம் செலுத்தப்படவில்லை என்று குறிக்கப்பட்டது` : `🔴 ${m.name} marked Not Paid`);
+    } else {
+        // Mark as Paid, update date to today
+        m.feesPaid = paidText;
+        // Update the date to today's date upon payment
+        const today = new Date();
+        m.date = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+        displayMessage(lang === "ta" ? `🟢 ${m.name} கட்டணம் செலுத்தப்பட்டது என்று குறிக்கப்பட்டது` : `🟢 ${m.name} marked Paid`);
+    }
+
+    localStorage.setItem("members", JSON.stringify(members));
+    loadMembers(); // Reload table to reflect change
+}
+
 // Load Members and update tables
 function loadMembers(){
+    // 1. Load and update member status logic
     members=JSON.parse(localStorage.getItem("members"))||[];
     const paidText = lang=="ta"?"கட்டப்பட்டது":"Paid";
     const notPaidText = lang=="ta"?"கட்டப்படவில்லை":"Not Paid";
@@ -542,6 +726,10 @@ function loadMembers(){
             else if(planType.includes("Quarterly") || planType.includes("காலாண்டு")){ renewalDate.setMonth(start.getMonth()+3); }
             else if(planType.includes("Annual") || planType.includes("வருடம்")){ renewalDate.setFullYear(start.getFullYear()+1); }
 
+            // Reset time part for accurate date comparison
+            today.setHours(0, 0, 0, 0);
+            renewalDate.setHours(0, 0, 0, 0);
+
             if(today>renewalDate) {
                 m.feesPaid = notPaidText;
             } else {
@@ -558,156 +746,107 @@ function loadMembers(){
     localStorage.setItem("members",JSON.stringify(members));
 
     if(role=="admin"){
-        // 1. Member Table (Admin)
+        
+        // 2. Determine Search Query
+        let searchInputId = 'memberSearchInput';
+        // If the fee page is visible, use the fee search input
+        if (!document.getElementById('feePage').classList.contains('hidden')) {
+            searchInputId = 'feeSearchInput';
+        }
+
+        const searchInput = document.getElementById(searchInputId);
+        let currentMembers = [...members];
+        let query = "";
+
+        if (searchInput) {
+            query = searchInput.value.toLowerCase().trim();
+        }
+
+        if (query.length > 0) {
+            currentMembers = currentMembers.filter(m =>
+                m.regNo.toLowerCase().includes(query) ||
+                m.name.toLowerCase().includes(query) ||
+                m.mobile.includes(query)
+            );
+        }
+
+        // 3. Render Member Table (Admin Page)
         let table=document.getElementById("memberTable");
-        const memberHeaders = `<tr>
-            <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"புகைப்படம்":"Photo"}</th>
-            <th class="px-4 py-2 bg-blue-600 text-white">Reg.No</th>
-            <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"பெயர்":"Name"}</th>
-            <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"திட்டம்":"Plan"}</th>
-            <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"சேர்க்கை தேதி":"Joining Date"}</th>
-            <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"கட்டண நிலை":"Fees Paid"}</th>
-            <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"செயல்":"Actions"}</th>
-        </tr>`;
+        const memberHeaders = `
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"புகைப்படம்":"Photo"}</th>
+                    <th class="px-4 py-2 bg-blue-600 text-white">Reg.No</th>
+                    <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"பெயர்":"Name"}</th>
+                    <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"திட்டம்":"Plan"}</th>
+                    <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"சேர்க்கை தேதி":"Joining Date"}</th>
+                    <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"கட்டண நிலை":"Fees Paid"}</th>
+                    <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"செயல்":"Actions"}</th>
+                </tr>
+            </thead>
+            <tbody>`;
         table.innerHTML=memberHeaders;
-        members.forEach(m=>{
+        currentMembers.forEach(m=>{
             table.innerHTML+=`<tr class="hover:bg-gray-50 border-b">
                 <td class="px-4 py-3 text-center"><img class="member-photo mx-auto" src="${m.photo}" onerror="this.onerror=null;this.src='https://placehold.co/70x70/cccccc/333333?text=N/A';" /></td>
                 <td class="px-4 py-3">${m.regNo}</td>
-                <td class="px-4 py-3"><a href="#" onclick="showMember(${m.id})" class="text-blue-600 hover:text-blue-800 font-medium">${m.name}</a></td>
-                <td class="px-4 py-3">${m.plan}</td>
-                <td class="px-4 py-3">${m.date}</td>
-                <td class="px-4 py-3 font-semibold" style="color: ${m.feesPaid.includes(paidText) ? 'green' : 'red'};">${m.feesPaid}</td>
+                <td class="px-4 py-3"><a href="#" onclick="showMember(${m.id}); return false;" class="text-blue-600 hover:text-blue-800 font-medium">${m.name}</a></td>
+                <td class="px-4 py-3 text-xs">${m.plan.split(' - ')[0]}</td>
+                <td class="px-4 py-3 text-xs">${m.date}</td>
+                <td class="px-4 py-3 font-semibold text-xs" style="color: ${m.feesPaid.includes(paidText) ? 'green' : 'red'};">${m.feesPaid}</td>
                 <td class="px-4 py-3 text-center">
-                    <button onclick='editMember(${m.id})' class="bg-yellow-400 text-gray-800 p-2 text-xs rounded-md hover:bg-yellow-500 transition duration-150 mr-1">✏️</button>
-                    <button onclick='removeMember(${m.id})' class="bg-red-500 text-white p-2 text-xs rounded-md hover:bg-red-600 transition duration-150">❌</button>
+                    <button onclick='editMember(${m.id})' class="bg-yellow-400 text-gray-800 p-1.5 text-xs rounded-md hover:bg-yellow-500 transition duration-150 mr-1">✏️</button>
+                    <button onclick='removeMember(${m.id})' class="bg-red-500 text-white p-1.5 text-xs rounded-md hover:bg-red-600 transition duration-150">❌</button>
                 </td>
             </tr>`;
         });
+        table.innerHTML += `</tbody>`;
 
-        // 2. Fee Table (Fees Page)
+        // 4. Render Fee Table (Fees Page)
         let feeTable=document.getElementById("feeTable");
         if(feeTable){
-            const feeHeaders = `<tr>
-                <th class="px-4 py-2 bg-blue-600 text-white">Reg.No</th>
-                <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"பெயர்":"Name"}</th>
-                <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"திட்டம்":"Plan"}</th>
-                <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"கட்டண முறை":"P. Method"}</th>
-                <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"கட்டண தொகை (₹)":"Fee Amount (₹)"}</th>
-                <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"கட்டண நிலை":"Fees Paid"}</th>
-                <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"செயல்":"Actions"}</th>
-            </tr>`;
+            const feeHeaders = `
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2 bg-blue-600 text-white">Reg.No</th>
+                        <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"பெயர்":"Name"}</th>
+                        <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"திட்டம்":"Plan"}</th>
+                        <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"கட்டண முறை":"P. Method"}</th>
+                        <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"கட்டண தொகை (₹)":"Fee Amount (₹)"}</th>
+                        <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"கட்டண நிலை":"Fees Paid"}</th>
+                        <th class="px-4 py-2 bg-blue-600 text-white">${lang=="ta"?"செயல்":"Actions"}</th>
+                    </tr>
+                </thead>
+                <tbody>`;
             feeTable.innerHTML=feeHeaders;
-            members.forEach(m=>{
-                // Create the Payment Method dropdown for marking paid (using minimal styling)
-                const paymentOptions = `
-                    <select id="paymentMethod-${m.id}" class="w-24 p-1 text-sm border border-gray-300 rounded-md block mx-auto mb-1">
-                        <option value="Cash" ${m.paymentMethod === 'Cash' ? 'selected' : ''}>${lang === "ta" ? "பணம்" : "Cash"}</option>
-                        <option value="GPay" ${m.paymentMethod === 'GPay' ? 'selected' : ''}>GPay</option>
-                        <option value="Not Specified" ${m.paymentMethod === 'Not Specified' ? 'selected' : ''}>${lang === "ta" ? "தேர்வு" : "Select"}</option>
-                    </select>
-                `;
-
+            currentMembers.forEach(m=>{
+                const planAmount = m.plan.split(' - ')[1] ? m.plan.split(' - ')[1].replace('₹', '') : 'N/A';
                 feeTable.innerHTML+=`<tr class="hover:bg-gray-50 border-b">
                     <td class="px-4 py-3">${m.regNo}</td>
-                    <td class="px-4 py-3">${m.name}</td>
-                    <td class="px-4 py-3">${m.plan}</td>
-                    <td class="px-4 py-3 text-xs">${m.paymentMethod === "Not Specified" ? (lang=="ta"?"குறிப்பிடப்படவில்லை":"N/A") : m.paymentMethod}</td> <!-- Display existing method -->
-                    <td class="px-4 py-3"><input type='number' value='${m.amount}' onchange='updateAmount(${m.id},this.value)' class="w-20 p-1 text-sm border border-gray-300 rounded-md"></td>
-                    <td class="px-4 py-3 font-semibold" style="color: ${m.feesPaid.includes(paidText) ? 'green' : 'red'};">${m.feesPaid}</td>
+                    <td class="px-4 py-3 text-sm">${m.name}</td>
+                    <td class="px-4 py-3 text-sm">${m.plan.split(' - ')[0]}</td>
+                    <td class="px-4 py-3 text-sm">${m.paymentMethod}</td>
+                    <td class="px-4 py-3 text-sm font-medium">₹${planAmount}</td>
+                    <td class="px-4 py-3 font-semibold text-xs" style="color: ${m.feesPaid.includes(paidText) ? 'green' : 'red'};">${m.feesPaid}</td>
                     <td class="px-4 py-3 text-center">
-                        ${m.feesPaid.includes(notPaidText) ? paymentOptions : ''} 
-                        <button onclick='markPaid(${m.id})' class="bg-green-600 text-white p-2 text-xs rounded-md hover:bg-green-700 transition duration-150 w-24">${lang=="ta"?"கட்டப்பட்டது":"Mark Paid"}</button>
+                        <button onclick='toggleFeeStatus(${m.id})' class="bg-green-500 text-white p-1.5 text-xs rounded-md hover:bg-green-600 transition duration-150">
+                            ${m.feesPaid.includes(paidText) ? (lang=="ta"?"நிலையை மாற்று":"Toggle Paid") : (lang=="ta"?"கட்டப்பட்டது என்று குறிக்க":"Mark Paid")}
+                        </button>
                     </td>
                 </tr>`;
             });
+            feeTable.innerHTML += `</tbody>`;
         }
     }
 }
 
-// Member Modal
-function showMember(id){
-    let m=members.find(x=>x.id==id);
-    if(!m) return;
-    const paidText = lang=="ta"?"கட்டப்பட்டது":"Paid";
+// Initialize language and load members on load
+window.onload = () => {
+    // Ensure all select elements are initialized with options based on default language
+    updateLanguage(); 
+    loadMembers(); // Load data initially
+};
 
-    let table=document.getElementById("detailTable");
-    let modalPhoto=document.getElementById("modalPhoto");
-    
-    // Table Headers
-    const modalHeaders = `<tr class="bg-gray-100">
-        <th class="px-4 py-2 text-left w-1/3 text-gray-700">${lang=="ta"?"விபரம்":"Field"}</th>
-        <th class="px-4 py-2 text-left w-2/3 text-gray-700">${lang=="ta"?"மதிப்பு":"Value"}</th>
-    </tr>`;
-
-    // Table Content
-    table.innerHTML=modalHeaders + `
-        <tr class="border-b"><td class="px-4 py-2 font-medium">Reg.No</td><td class="px-4 py-2">${m.regNo}</td></tr>
-        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"பெயர்":"Name"}</td><td class="px-4 py-2">${m.name}</td></tr>
-        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"வயது":"Age"}</td><td class="px-4 py-2">${m.age}</td></tr>
-        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"கைபேசி எண்":"Mobile"}</td><td class="px-4 py-2">${m.mobile}</td></tr>
-        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"மின்னஞ்சல்":"Email"}</td><td class="px-4 py-2">${m.email}</td></tr>
-        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"முகவரி":"Address"}</td><td class="px-4 py-2">${m.address}</td></tr>
-        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"ஆதார் எண்":"Aadhaar"}</td><td class="px-4 py-2">${m.aadhaar}</td></tr>
-        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"திட்டம்":"Plan"}</td><td class="px-4 py-2">${m.plan}</td></tr>
-        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"சேர்க்கை தேதி":"Joining Date"}</td><td class="px-4 py-2">${m.date}</td></tr>
-        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"மருத்துவ பிரச்சினைகள்":"Medical Issues"}</td><td class="px-4 py-2">${m.medical}</td></tr>
-        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"மருத்துவ விவரங்கள்":"Medical Details"}</td><td class="px-4 py-2">${m.medicalDetails}</td></tr>
-        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"கட்டண முறை":"Payment Method"}</td><td class="px-4 py-2">${m.paymentMethod || (lang=="ta"?"குறிப்பிடப்படவில்லை":"Not Specified")}</td></tr>
-        <tr class="border-b"><td class="px-4 py-2 font-medium">${lang=="ta"?"கட்டண நிலை":"Fees Paid"}</td><td class="px-4 py-2 font-semibold" style="color: ${m.feesPaid.includes(paidText) ? 'green' : 'red'};">${m.feesPaid}</td></tr>`;
-    
-    modalPhoto.src = m.photo;
-    document.getElementById("memberModal").style.display="flex";
-}
-
-// Utility Functions
-function displayMessage(message) {
-    const messageBox = document.createElement('div');
-    messageBox.id = 'messageBox';
-    messageBox.style.cssText = 'position: fixed; top: 0; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 0 0 8px 8px; z-index: 10000; transition: all 0.5s; opacity: 0;';
-    document.body.appendChild(messageBox);
-    messageBox.innerText = message;
-    messageBox.style.opacity = 1;
-    setTimeout(() => {
-        messageBox.style.opacity = 0;
-        setTimeout(() => messageBox.remove(), 500);
-    }, 3000);
-}
-
-function closeModal(){ document.getElementById("memberModal").style.display="none"; }
-function removeMember(id){ 
-    members = members.filter(x=>x.id!=id); 
-    localStorage.setItem("members",JSON.stringify(members)); 
-    loadMembers(); 
-    displayMessage(lang=="ta"?"❌ உறுப்பினர் நீக்கப்பட்டது.":"❌ Member removed.");
-}
-function gotoFeePage(){ document.getElementById("adminPage").classList.add("hidden"); document.getElementById("feePage").classList.remove("hidden"); loadMembers(); }
-function backToAdmin(){ document.getElementById("feePage").classList.add("hidden"); document.getElementById("adminPage").classList.remove("hidden"); }
-
-function updateAmount(id,value){ 
-    let m=members.find(x=>x.id==id); 
-    if(m){ 
-        m.amount=parseFloat(value)||0; 
-        localStorage.setItem("members",JSON.stringify(members)); 
-    } 
-}
-
-function markPaid(id){ 
-    let m=members.find(x=>x.id==id); 
-    if(m){ 
-        // Get the selected payment method from the dropdown associated with this row
-        const paymentMethodElement = document.getElementById(`paymentMethod-${id}`);
-        const selectedMethod = paymentMethodElement ? paymentMethodElement.value : m.paymentMethod;
-
-        m.feesPaid=lang=="ta"?"கட்டப்பட்டது":"Paid"; 
-        m.date = new Date().toISOString().substring(0, 10); // Update joining date to today (renewal date)
-        m.paymentMethod = selectedMethod !== "Not Specified" ? selectedMethod : m.paymentMethod; // Only update if a valid method is selected
-        
-        localStorage.setItem("members",JSON.stringify(members)); 
-        loadMembers(); 
-        displayMessage(lang=="ta"?"✅ கட்டணம் கட்டப்பட்டதாக குறிக்கப்பட்டது.":"✅ Fee marked as Paid.");
-    } 
-}
 </script>
 </body>
 </html>
